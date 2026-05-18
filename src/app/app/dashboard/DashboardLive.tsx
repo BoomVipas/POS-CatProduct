@@ -114,28 +114,34 @@ export function DashboardLive() {
   const compareLabel = `vs prev ${daysInRange(range) === 1 ? "day" : `${daysInRange(range)}d`}`;
 
   return (
-    <main className="mx-auto max-w-6xl px-5 py-8">
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <div>
-          <h1 className="font-display text-3xl text-accent-strong">Dashboard</h1>
-          <p className="text-xs font-bold uppercase tracking-wider text-muted">
+    <main className="mx-auto max-w-[96rem] px-5 py-8">
+      <header className="flex flex-wrap items-end justify-between gap-4 border-b border-line-soft pb-5">
+        <div className="min-w-0">
+          <p className="kicker">Dashboard</p>
+          <h1 className="headline-upright mt-1 text-3xl text-accent-deep">
+            Today at the booth
+          </h1>
+          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted">
             {range.label}
             {hasLiveData ? " · live demo" : " · illustrative"}
           </p>
         </div>
-        <ExportCsvButton />
-      </div>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <ExportCsvButton />
+        </div>
+      </header>
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <DateRangePicker value={rangeId} onChange={setRangeId} />
         {hasLiveData && (
-          <p className="text-xs text-muted">
+          <p className="num text-xs text-muted">
             {ordersHere.length} order{ordersHere.length === 1 ? "" : "s"} ·
             comparing to {ordersPrev.length} previous-period
           </p>
         )}
       </div>
       {!hasLiveData && (
-        <p className="mt-2 text-sm text-muted">
+        <p className="mt-3 text-sm text-muted">
           No sales recorded in this range. Record a sale at /app/pos to see
           your own data here.
         </p>
@@ -210,7 +216,7 @@ export function DashboardLive() {
 
       <Link
         href="/app"
-        className="mt-8 inline-block text-sm font-bold text-accent-strong"
+        className="btn-link mt-8 inline-block text-sm"
       >
         ← App home
       </Link>

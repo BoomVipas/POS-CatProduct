@@ -64,7 +64,7 @@ export default async function AppLayout({
     guard.mode === "configured" ? guard.workspaceName : "Demo Brand";
 
   return (
-    <div className="flex min-h-dvh flex-1 flex-col">
+    <div className="theme-app flex min-h-dvh flex-1 flex-col">
       <header className="border-b border-line bg-panel/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3 sm:px-5">
           <Link

@@ -3,25 +3,29 @@ import { AuditLogList } from "./AuditLogList";
 
 export default function AuditLogPage() {
   return (
-    <main className="mx-auto max-w-4xl px-5 py-10">
-      <h1 className="font-display text-3xl text-accent-strong">Audit log</h1>
-      <p className="mt-2 text-text/85">
-        Append-only history of demo-mode actions: settings updates, catalog
-        edits, sales, voids, and send-later transitions.
-      </p>
-      <p className="mt-1 text-xs text-muted">
-        Demo mode: localStorage. DD-97 will replace this with a workspace-scoped
-        view of the Supabase <code>audit_logs</code> table.
-      </p>
+    <main className="mx-auto max-w-[96rem] px-6 py-10">
+      <header className="flex flex-wrap items-end justify-between gap-4 border-b border-line-soft pb-6">
+        <div className="max-w-2xl">
+          <p className="kicker kicker-gold">Audit log</p>
+          <h1 className="headline-upright mt-3 text-3xl text-accent-deep">
+            Forensic ledger
+          </h1>
+          <p className="mt-3 text-sm text-text-soft">
+            Append-only record of demo-mode actions — settings updates, catalog
+            edits, sales, voids, send-later transitions. Every entry carries
+            actor, timestamp, and before/after state.
+          </p>
+          <p className="mt-2 text-xs text-muted">
+            Demo mode: localStorage. DD-97 will swap this for the workspace-scoped
+            Supabase <code className="mono">audit_logs</code> table.
+          </p>
+        </div>
+        <Link href="/app" className="btn-link text-sm">
+          App home
+        </Link>
+      </header>
 
       <AuditLogList />
-
-      <Link
-        href="/app"
-        className="mt-6 inline-block text-sm font-bold text-accent-strong"
-      >
-        ← App home
-      </Link>
     </main>
   );
 }

@@ -83,19 +83,22 @@ export function CartPanel({
     cart.lines.length === 0 || !paymentChosen || sendLaterMissingCustomer;
 
   return (
-    <div className={compact ? "p-4" : "panel p-5"}>
+    <div className={compact ? "p-4" : "panel-lift p-5"}>
       {!compact && (
-        <header className="mb-3 flex items-baseline justify-between gap-2">
-          <h2 className="font-display text-xl text-accent-strong">
-            {t.pos.cart}
-          </h2>
+        <header className="mb-3 flex items-baseline justify-between gap-2 border-b border-line pb-3">
+          <div>
+            <p className="kicker">Sale</p>
+            <h2 className="headline-upright mt-0.5 text-2xl text-accent-deep">
+              {t.pos.cart}
+            </h2>
+          </div>
           <div className="flex items-center gap-1.5">
             <ImportClaimButton />
             {cart.lines.length > 0 && (
               <button
                 type="button"
                 onClick={() => dispatch({ type: "CLEAR" })}
-                className="rounded-full bg-[#f2e6d7] px-3 py-1 text-xs font-extrabold text-[#6a4a26]"
+                className="btn-ghost btn-sm"
               >
                 {t.pos.clear}
               </button>
@@ -109,7 +112,7 @@ export function CartPanel({
       </div>
 
       {cart.lines.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-line bg-white px-4 py-6 text-center text-sm text-muted">
+        <p className="panel-quiet px-4 py-6 text-center text-sm text-muted">
           {t.pos.emptyCart}
         </p>
       ) : (
@@ -134,7 +137,7 @@ export function CartPanel({
           label={t.pos.discount}
         />
 
-        <div className="grid gap-2 rounded-2xl border border-line bg-[#fffdf9] p-4 text-sm">
+        <div className="panel-quiet grid gap-2 p-4 text-sm">
           <Row label={t.pos.subtotal} value={formatTHB(subtotal)} muted />
           {shipping > 0 && (
             <Row
@@ -151,10 +154,10 @@ export function CartPanel({
             />
           )}
           <div className="mt-1 flex items-baseline justify-between border-t border-line pt-2">
-            <span className="font-display text-lg text-accent-strong">
+            <span className="headline-upright text-xl text-accent-deep">
               {t.pos.total}
             </span>
-            <span className="num text-2xl font-black text-accent-strong">
+            <span className="mono num text-3xl font-semibold text-accent-deep">
               {formatTHB(total)}
             </span>
           </div>
@@ -162,13 +165,16 @@ export function CartPanel({
 
         {!usingSplits && (
           <>
-            <PaymentPicker
-              methods={METHODS}
-              selected={cart.paymentMethod}
-              onSelect={(m) =>
-                dispatch({ type: "SET_PAYMENT_METHOD", method: m })
-              }
-            />
+            <div>
+              <p className="kicker mb-2">Payment</p>
+              <PaymentPicker
+                methods={METHODS}
+                selected={cart.paymentMethod}
+                onSelect={(m) =>
+                  dispatch({ type: "SET_PAYMENT_METHOD", method: m })
+                }
+              />
+            </div>
 
             {cart.lines.length > 0 && total > 0 && (
               <button
@@ -179,7 +185,7 @@ export function CartPanel({
                     split: { method: "cash", amountSatang: total },
                   })
                 }
-                className="self-start text-xs font-bold text-accent-strong underline-offset-2 hover:underline"
+                className="btn-link self-start text-xs"
               >
                 {t.pos.splitPayment} →
               </button>
@@ -208,7 +214,7 @@ export function CartPanel({
           type="button"
           disabled={ctaDisabled}
           onClick={() => setReviewOpen(true)}
-          className="btn-accent rounded-2xl px-5 py-3 text-base font-extrabold"
+          className="btn-accent btn-xl w-full"
         >
           {cta}
         </button>
@@ -238,10 +244,16 @@ function Row({
 }) {
   return (
     <div className="flex items-baseline justify-between gap-2">
-      <span className={muted ? "font-bold text-muted" : "font-bold"}>
+      <span
+        className={
+          muted
+            ? "text-xs font-semibold uppercase tracking-wider text-muted"
+            : "text-xs font-semibold uppercase tracking-wider text-text-soft"
+        }
+      >
         {label}
       </span>
-      <span className="num font-bold">{value}</span>
+      <span className="mono num font-semibold text-text">{value}</span>
     </div>
   );
 }
@@ -257,10 +269,8 @@ function DiscountInput({
 }) {
   const presets = [0, 5000, 10000]; // 0, 50, 100 THB
   return (
-    <div className="flex items-center gap-2 rounded-2xl border border-line bg-panel px-3 py-2">
-      <span className="text-xs font-extrabold uppercase tracking-wider text-muted">
-        {label}
-      </span>
+    <div className="panel-quiet flex items-center gap-2 px-3 py-2">
+      <span className="kicker">{label}</span>
       <input
         type="number"
         min={0}
@@ -273,7 +283,7 @@ function DiscountInput({
           if (Number.isFinite(n)) onChange(Math.max(0, Math.round(n * 100)));
         }}
         placeholder="0"
-        className="num w-20 rounded-lg border border-line bg-white px-2 py-1 text-right text-sm font-extrabold focus:border-accent focus:outline-none"
+        className="field mono num w-20 py-1 text-right"
       />
       <div className="ml-auto flex gap-1">
         {presets.map((p) => (
@@ -283,8 +293,8 @@ function DiscountInput({
             onClick={() => onChange(p)}
             className={
               satang === p && p > 0
-                ? "rounded-full bg-[#e7dbc6] px-2 py-1 text-[11px] font-extrabold text-[#5d3f1e]"
-                : "rounded-full bg-[#fff8ef] px-2 py-1 text-[11px] font-extrabold text-[#6a4a26]"
+                ? "chip chip-gold mono"
+                : "chip chip-neutral mono"
             }
           >
             {p === 0 ? "0" : `${p / 100}`}

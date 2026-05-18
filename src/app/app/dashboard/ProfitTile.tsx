@@ -17,14 +17,12 @@ export function ProfitTile({
 }) {
   const coverage = totalOrders > 0 ? Math.round((ordersWithCost / totalOrders) * 100) : 0;
   return (
-    <div className="rounded-[var(--radius-lg)] border border-line bg-panel-strong px-5 py-4">
+    <div className="panel-quiet border-l-2 border-gold px-5 py-4">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="text-xs font-bold uppercase tracking-wider text-muted">
-          Profit today
-        </p>
+        <p className="kicker">Profit today</p>
         {marginPct !== null && (
-          <span className="rounded-full bg-[var(--color-ok-soft-bg)] px-2 py-0.5 text-[11px] font-extrabold text-[var(--color-ok-soft-fg)]">
-            {marginPct.toFixed(1)}% margin
+          <span className="chip chip-ok">
+            <span className="num">{marginPct.toFixed(1)}%</span> margin
           </span>
         )}
       </div>
@@ -34,29 +32,25 @@ export function ProfitTile({
         </p>
       ) : (
         <>
-          <p className="num mt-1 text-3xl font-black text-accent-strong">
+          <p className="mono num mt-2 text-3xl font-semibold text-accent-deep sm:text-4xl">
             {formatTHB(profitSatang)} THB
           </p>
-          <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+          <div className="mt-3 grid grid-cols-2 gap-3 border-t border-line-soft pt-3 text-xs">
             <div>
-              <p className="font-bold uppercase tracking-wider text-muted">
-                Revenue
-              </p>
-              <p className="num font-extrabold text-text">
+              <p className="kicker">Revenue</p>
+              <p className="mono num mt-1 text-base font-semibold text-text">
                 {formatTHB(revenueSatang)}
               </p>
             </div>
             <div>
-              <p className="font-bold uppercase tracking-wider text-muted">
-                COGS
-              </p>
-              <p className="num font-extrabold text-text">
+              <p className="kicker">COGS</p>
+              <p className="mono num mt-1 text-base font-semibold text-text">
                 {formatTHB(cogsSatang)}
               </p>
             </div>
           </div>
           {coverage < 100 && totalOrders > 0 && (
-            <p className="mt-2 text-[11px] text-muted">
+            <p className="mt-3 text-[11px] text-muted">
               Margin computed from {ordersWithCost} of {totalOrders} order
               {totalOrders === 1 ? "" : "s"} ({coverage}% with cost).
             </p>

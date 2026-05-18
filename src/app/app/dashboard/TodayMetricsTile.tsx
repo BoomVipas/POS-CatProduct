@@ -20,11 +20,11 @@ export function TodayMetricsTile({
 
 function Tile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-line bg-panel-strong px-5 py-4">
-      <p className="text-xs font-bold uppercase tracking-wider text-muted">
-        {label}
+    <div className="panel-quiet border-l-2 border-gold px-5 py-4">
+      <p className="kicker">{label}</p>
+      <p className="mono num mt-2 text-3xl font-semibold text-accent-deep sm:text-4xl">
+        {value}
       </p>
-      <p className="num mt-1 text-3xl font-black text-accent-strong">{value}</p>
     </div>
   );
 }

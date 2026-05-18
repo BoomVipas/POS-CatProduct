@@ -6,37 +6,41 @@ export function InventoryTile({
   rows: Array<{ sku: string; name: string; current: number; starting: number }>;
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-line bg-panel-strong px-5 py-4">
-      <p className="text-xs font-bold uppercase tracking-wider text-muted">
-        Inventory remaining
-      </p>
-      <ul className="mt-3 grid gap-2">
-        {rows.map((r) => {
-          const pct =
-            r.starting > 0 ? Math.round((r.current / r.starting) * 100) : 0;
-          const tone =
-            r.current === 0 ? "danger" : r.current <= 5 ? "warn" : "ok";
-          return (
-            <li
-              key={r.sku}
-              className="flex items-center justify-between gap-3 rounded-xl border border-line bg-panel px-3 py-2 text-sm"
-            >
-              <div className="min-w-0">
-                <p className="font-extrabold text-text">{r.name}</p>
-                <p className="text-[11px] text-muted">{r.sku}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="num text-sm font-extrabold text-accent-strong">
+    <div className="panel-quiet border-l-2 border-line-strong px-5 py-4">
+      <p className="kicker">Inventory remaining</p>
+      <table className="tbl mt-3">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th className="text-right">Stock</th>
+            <th className="text-right">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const pct =
+              r.starting > 0 ? Math.round((r.current / r.starting) * 100) : 0;
+            const tone =
+              r.current === 0 ? "danger" : r.current <= 5 ? "warn" : "ok";
+            return (
+              <tr key={r.sku}>
+                <td>
+                  <p className="font-semibold text-text">{r.name}</p>
+                  <p className="mono num text-[11px] text-muted">{r.sku}</p>
+                </td>
+                <td className="mono num text-right font-semibold text-accent-deep">
                   {r.current} / {r.starting}
-                </span>
-                <Pill tone={tone}>
-                  {r.current === 0 ? "sold out" : `${pct}%`}
-                </Pill>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+                </td>
+                <td className="text-right">
+                  <Pill tone={tone}>
+                    {r.current === 0 ? "sold out" : `${pct}%`}
+                  </Pill>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }

@@ -13,12 +13,10 @@ export function PaceStrip({
   const remaining = Math.max(0, targetSatang - achievedSatang);
 
   return (
-    <div className="panel p-5">
+    <div className="panel-quiet border-l-2 border-gold px-5 py-4">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="text-xs font-bold uppercase tracking-wider text-muted">
-          Day goal
-        </p>
-        <p className="num text-sm font-bold text-muted">
+        <p className="kicker">Day goal</p>
+        <p className="mono num text-sm font-semibold text-text-soft">
           {formatTHB(achievedSatang)} / {formatTHB(targetSatang)} THB
         </p>
       </div>
@@ -30,16 +28,16 @@ export function PaceStrip({
         aria-valuenow={pct}
       >
         <div
-          className="h-full rounded-full bg-gradient-to-r from-[#a9763f] to-[#7e552a] transition-all"
+          className="h-full rounded-full bg-gradient-to-r from-accent to-accent-deep transition-all"
           style={{ width: `${pct}%` }}
         />
       </div>
       <div className="mt-2 flex items-baseline justify-between gap-2 text-xs text-muted">
-        <span className="num">{pct}% achieved</span>
-        <span className="num">
+        <span className="mono num">{pct}% achieved</span>
+        <span className="mono num">
           {remaining > 0
             ? `${formatTHB(remaining)} THB to goal`
-            : "Goal hit "}
+            : "Goal hit"}
         </span>
       </div>
     </div>

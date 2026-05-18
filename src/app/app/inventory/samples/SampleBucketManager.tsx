@@ -16,6 +16,8 @@ function defaultAvailable(qty: number): number {
   return Math.max(0, qty);
 }
 
+const LOW_THRESHOLD = 1;
+
 export function SampleBucketManager() {
   const catalog = useDemoCatalog();
   const samples = useDemoSampleBucket();
@@ -32,23 +34,26 @@ export function SampleBucketManager() {
 
   if (!catalog.ready || !samples.ready) {
     return (
-      <div className="panel p-6 text-center text-sm text-muted">Loading…</div>
+      <div className="panel-quiet p-6 text-center text-sm text-muted">
+        Loading…
+      </div>
     );
   }
 
   if (products.length === 0) {
     return (
-      <div className="panel p-6 text-center">
-        <p className="text-sm text-muted">
-          No products yet. Add a few in{" "}
-          <a
-            href="/app/setup/products"
-            className="font-bold text-accent-strong underline-offset-2 hover:underline"
-          >
-            Product setup
-          </a>{" "}
-          first.
+      <div className="panel-quiet flex flex-col items-center gap-3 px-6 py-16 text-center">
+        <p className="kicker kicker-gold">Empty bucket</p>
+        <p className="headline text-3xl text-accent-deep">
+          No samples tracked
         </p>
+        <p className="mt-1 max-w-[52ch] text-sm text-text-soft">
+          Add a few items in product setup, then move units to the bucket
+          when they go on display.
+        </p>
+        <a href="/app/setup/products" className="btn-link mt-3 text-sm">
+          Go to product setup
+        </a>
       </div>
     );
   }
@@ -97,27 +102,56 @@ export function SampleBucketManager() {
     (sum, p) => sum + samples.qtyFor(DEMO_EVENT_ID, p.id),
     0,
   );
+  const totalCap = products.reduce(
+    (sum, p) => sum + defaultAvailable(p.current_qty ?? 0),
+    0,
+  );
+  const productsWithSamples = products.filter(
+    (p) => samples.qtyFor(DEMO_EVENT_ID, p.id) > 0,
+  ).length;
 
   return (
-    <section className="grid gap-4">
-      <div className="panel p-4">
-        <p className="text-xs font-bold uppercase tracking-wide text-muted">
-          Total samples on display
-        </p>
-        <p className="num mt-1 font-display text-3xl text-accent-strong">
-          {totalSampleQty}
-        </p>
+    <section className="grid gap-6">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="panel-quiet border-l-2 border-gold p-5">
+          <p className="kicker">Samples on hand</p>
+          <p className="mono num mt-3 text-3xl text-accent-deep">
+            {totalSampleQty}
+          </p>
+          <p className="mt-1 text-xs text-muted">
+            Units currently on display
+          </p>
+        </div>
+        <div className="panel-quiet border-l-2 border-gold p-5">
+          <p className="kicker">Lines with samples</p>
+          <p className="mono num mt-3 text-3xl text-accent-deep">
+            {productsWithSamples}
+          </p>
+          <p className="mt-1 text-xs text-muted">
+            Out of {products.length} active
+          </p>
+        </div>
+        <div className="panel-quiet border-l-2 border-gold p-5">
+          <p className="kicker">Event stock cap</p>
+          <p className="mono num mt-3 text-3xl text-accent-deep">
+            {totalCap}
+          </p>
+          <p className="mt-1 text-xs text-muted">
+            Ceiling for sample conversion
+          </p>
+        </div>
       </div>
 
-      <div className="panel overflow-hidden p-0">
-        <table className="w-full table-fixed text-sm">
-          <thead className="bg-soft text-left text-[11px] font-extrabold uppercase tracking-wide text-muted">
+      <div className="panel-quiet overflow-hidden">
+        <table className="tbl table-fixed">
+          <thead>
             <tr>
-              <th className="px-4 py-3 w-[12%]">SKU</th>
-              <th className="px-4 py-3 w-[40%]">Product</th>
-              <th className="px-4 py-3 w-[12%]">Cap</th>
-              <th className="px-4 py-3 w-[12%]">Sample</th>
-              <th className="px-4 py-3 w-[24%] text-right">Actions</th>
+              <th className="w-[36%]">Product</th>
+              <th className="w-[14%]">SKU</th>
+              <th className="w-[12%]">On hand</th>
+              <th className="w-[12%]">Cap</th>
+              <th className="w-[12%]">Status</th>
+              <th className="w-[14%] text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -126,31 +160,37 @@ export function SampleBucketManager() {
               const qty = samples.qtyFor(DEMO_EVENT_ID, p.id);
               const canMake = !busySku && cap > 0;
               const canReturn = !busySku && qty > 0;
+              const chipClass =
+                qty === 0
+                  ? "chip chip-danger"
+                  : qty <= LOW_THRESHOLD
+                    ? "chip chip-warn"
+                    : "chip chip-ok";
+              const chipLabel =
+                qty === 0 ? "Out" : qty <= LOW_THRESHOLD ? "Low" : "Healthy";
               return (
-                <tr key={p.id} className="border-t border-line/60">
-                  <td className="px-4 py-3 font-bold text-muted">{p.sku}</td>
-                  <td className="px-4 py-3 font-extrabold text-text">
-                    {p.name}
-                  </td>
-                  <td className="num px-4 py-3 text-muted">{cap}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={
-                        qty > 0
-                          ? "num inline-flex min-w-[2ch] justify-center rounded-full bg-[var(--color-warn-soft-bg)] px-2 py-0.5 font-extrabold text-[var(--color-warn-soft-fg)]"
-                          : "num text-muted"
-                      }
+                <tr key={p.id}>
+                  <td>
+                    <a
+                      href="/app/setup/products"
+                      className="btn-link text-sm"
                     >
-                      {qty}
-                    </span>
+                      {p.name}
+                    </a>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="mono text-sm text-text-soft">{p.sku}</td>
+                  <td className="mono num text-text">{qty}</td>
+                  <td className="mono num text-muted">{cap}</td>
+                  <td>
+                    <span className={chipClass}>{chipLabel}</span>
+                  </td>
+                  <td>
                     <div className="flex justify-end gap-2">
                       <button
                         type="button"
                         disabled={!canMake}
                         onClick={() => handleMake(p.id, p.name, p.sku)}
-                        className="rounded-[var(--radius-md)] border border-line bg-panel px-3 py-1.5 text-xs font-bold text-accent-strong hover:bg-soft disabled:opacity-40"
+                        className="btn-ghost btn-sm disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         +1 Make
                       </button>
@@ -158,7 +198,7 @@ export function SampleBucketManager() {
                         type="button"
                         disabled={!canReturn}
                         onClick={() => handleReturn(p.id, p.name, p.sku)}
-                        className="rounded-[var(--radius-md)] border border-line bg-panel px-3 py-1.5 text-xs font-bold text-accent-strong hover:bg-soft disabled:opacity-40"
+                        className="btn-ghost btn-sm disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         -1 Return
                       </button>
@@ -171,11 +211,12 @@ export function SampleBucketManager() {
         </table>
       </div>
 
-      <p className="text-xs text-muted">
-        <strong>Cap</strong> shows the product&apos;s default event stock — a
-        proxy for available event-sellable qty in this demo. When real
-        event_inventory wires up after Wave 39a (PR #4) merges, this becomes
-        a live <code>current_qty</code> read from the database.
+      <p className="max-w-[72ch] text-xs text-muted">
+        <strong className="text-text-soft">Cap</strong> shows the product&apos;s
+        default event stock — a proxy for available event-sellable qty in this
+        demo. When real event_inventory wires up after Wave 39a (PR #4) merges,
+        this becomes a live <code className="mono">current_qty</code> read from
+        the database.
       </p>
     </section>
   );

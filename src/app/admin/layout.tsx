@@ -32,7 +32,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex-1">
+    <div className="theme-admin flex-1">
       <header className="border-b border-line bg-panel/85 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center gap-6 px-5 py-3">
           <Link

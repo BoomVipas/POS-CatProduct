@@ -49,22 +49,20 @@ export function UpsellPrompt({ products }: { products: Product[] }) {
   if (suggestions.length === 0) return null;
 
   return (
-    <div className="rounded-2xl border border-[var(--color-warn-soft-fg)]/30 bg-[var(--color-warn-soft-bg)]/40 p-3">
-      <p className="text-xs font-bold uppercase tracking-wider text-[var(--color-warn-soft-fg)]">
-        ★ {t.pos.upsellHeader}
-      </p>
+    <div className="panel-quiet border-gold-soft bg-gold-soft/25 p-3">
+      <p className="kicker">★ {t.pos.upsellHeader}</p>
       <ul className="mt-2 grid gap-2">
         {suggestions.map((p) => (
           <li
             key={p.id}
-            className="flex items-center justify-between gap-2 rounded-xl border border-line bg-white px-3 py-2"
+            className="flex items-center justify-between gap-2 rounded-[var(--radius-md)] border border-line bg-panel-strong px-3 py-2"
           >
             <div className="min-w-0">
-              <p className="text-[10px] font-bold text-muted">{p.sku}</p>
-              <p className="line-clamp-1 text-sm font-extrabold text-text">
+              <p className="mono text-[10px] text-muted">{p.sku}</p>
+              <p className="headline-upright line-clamp-1 text-sm text-text">
                 {p.name}
               </p>
-              <p className="num text-xs text-muted">
+              <p className="mono num text-xs text-muted">
                 +{formatTHB(p.price_satang)} THB
               </p>
             </div>
@@ -74,7 +72,7 @@ export function UpsellPrompt({ products }: { products: Product[] }) {
                 onClick={() =>
                   dispatch({ type: "ADD", productId: p.id })
                 }
-                className="rounded-full bg-gradient-to-b from-[#a9763f] to-[#7e552a] px-3 py-1 text-[11px] font-extrabold text-white"
+                className="btn-accent btn-sm"
               >
                 {t.pos.upsellAdd}
               </button>

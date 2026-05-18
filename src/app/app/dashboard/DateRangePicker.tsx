@@ -18,22 +18,30 @@ export function DateRangePicker({
   onChange: (id: RangePresetId) => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-1.5">
-      {PRESETS.map((p) => (
-        <button
-          key={p.id}
-          type="button"
-          onClick={() => onChange(p.id)}
-          aria-pressed={value === p.id}
-          className={
-            value === p.id
-              ? "rounded-full bg-[#7e552a] px-3 py-1 text-xs font-extrabold text-white"
-              : "rounded-full bg-panel px-3 py-1 text-xs font-bold text-muted hover:text-accent-strong"
-          }
-        >
-          {p.label}
-        </button>
-      ))}
+    <div
+      role="tablist"
+      aria-label="Date range"
+      className="inline-flex flex-wrap items-center gap-1 rounded-full border border-line bg-panel p-1"
+    >
+      {PRESETS.map((p) => {
+        const active = value === p.id;
+        return (
+          <button
+            key={p.id}
+            type="button"
+            role="tab"
+            onClick={() => onChange(p.id)}
+            aria-pressed={active}
+            className={
+              active
+                ? "rounded-full bg-accent-strong px-3 py-1 text-xs font-semibold tracking-wide text-panel-strong"
+                : "rounded-full px-3 py-1 text-xs font-semibold tracking-wide text-muted hover:text-accent-strong"
+            }
+          >
+            {p.label}
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -4,6 +4,36 @@ This is the **Cat Booth POS SaaS** project. It is co-located in the same git rep
 
 When working anywhere inside `pos-for-sell/`, **this file overrides the root `CLAUDE.md`**. The "Working with this user" section in the root `CLAUDE.md` still applies here — read it for tone and assumed capabilities.
 
+## System at a glance
+
+### What this product is
+
+A multi-tenant SaaS POS for cat-product booth sellers in Thailand. Two layers share one Next.js app: the **POS App** (seller-facing, under `/app/*`) and the **Customer Portal** (customer-facing, under `/register/[token]`). The two are connected by a 16-char single-use registration token issued at checkout.
+
+### Project structure
+
+- `src/app/` — Next.js App Router. Route groups: `/` (landing), `/login`, `/register`, `/apply`, `/learn`, `/qr-menu`, `/app/*` (tenant), `/admin/*` (platform admin).
+- `src/components/` — UI primitives + `Money` + `LanguageSwitcher`.
+- `src/lib/` — `supabase`, `auth`, `pos` (cart/calc), `email`, `i18n`, `money`, `sku`, `promptpay`, `image`, `csv`, `invite-code`, demo seed.
+- `src/proxy.ts` — Next 16 middleware (session refresh).
+- `database/` — `schema.sql`, `rls-policies.sql`, `seed.sql`, `functions/` (8 `SECURITY DEFINER` RPCs).
+- `tests/lib/` — 34 vitest specs. `tests/e2e/` — 3 playwright specs.
+- `docs/` — see Read-first list below.
+
+### User flow (end-to-end)
+
+1. Visitor lands on `/` → applies via `/apply` (DD-14 form, public, rate-limited).
+2. Admin reviews at `/admin/applications` → approves → invite email sent via Resend.
+3. Applicant redeems at `/register/[token]` → workspace + owner row created.
+4. Owner adds catalog at `/app/setup/products`.
+5. Cashier takes orders at `/app/pos` → `create_order` RPC writes `orders` + `order_items` + `payment_records` + `event_inventory` atomically.
+6. At checkout a registration token is issued → customer scans QR → claims profile + pet info at customer-side `/register/[token]`.
+7. Owner reviews at `/app/dashboard`, `/app/close-day`, `/app/correction`, `/app/audit-log`.
+
+### Demo mode
+
+If `NEXT_PUBLIC_SUPABASE_URL` is unset, `/app/*` and `/admin/*` render against mock data. This is the fastest way to explore the UI without a Supabase setup.
+
 ## Read first, every session
 
 1. [docs/ROADMAP.md](docs/ROADMAP.md) — **canonical** strategic direction (May 2026): beachhead market, vertical-module strategy, Google Auth + invite-only pilot, three-level data philosophy, six-month plan, pricing intent. Wins over older planning docs where they overlap.

@@ -22,15 +22,13 @@ export function CartLine({
 
   return (
     <li
-      className={`grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-2xl border border-line p-3 ${
-        isLater
-          ? "bg-gradient-to-b from-[#fffdf8] to-[#f8efe2]"
-          : "bg-white"
+      className={`panel-quiet grid grid-cols-[minmax(0,1fr)_auto] gap-3 p-3 ${
+        isLater ? "bg-gold-soft/30" : ""
       }`}
     >
       <div className="min-w-0">
-        <p className="text-[11px] font-bold text-muted">{product.sku}</p>
-        <p className="line-clamp-2 text-sm font-extrabold text-text">
+        <p className="mono text-[11px] text-muted">{product.sku}</p>
+        <p className="headline-upright line-clamp-2 text-base text-text">
           {product.name}
         </p>
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
@@ -43,11 +41,11 @@ export function CartLine({
                 fulfillment: isLater ? "take_now" : "send_later",
               })
             }
-            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${
+            className={
               isLater
-                ? "border-[#ddc4a2] bg-[#fff7ec] text-[#6d4c28]"
-                : "border-[#b8d2ab] bg-[var(--color-ok-soft-bg)] text-[var(--color-ok-soft-fg)]"
-            }`}
+                ? "chip chip-gold inline-flex items-center gap-1.5"
+                : "chip chip-ok inline-flex items-center gap-1.5"
+            }
           >
             {isLater ? t.pos.sendLater : t.pos.takeNow}
           </button>
@@ -55,7 +53,7 @@ export function CartLine({
             <button
               type="button"
               onClick={() => setShowNoteInput(true)}
-              className="inline-flex items-center gap-1 rounded-full border border-line bg-panel px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-muted hover:text-accent-strong"
+              className="chip chip-neutral inline-flex items-center gap-1 hover:text-accent-strong"
             >
               <StickyNote size={11} />
               {t.pos.addNote}
@@ -76,7 +74,7 @@ export function CartLine({
             placeholder={t.pos.notePlaceholder}
             maxLength={120}
             autoFocus={showNoteInput && !line.note}
-            className="mt-2 w-full rounded-md border border-line bg-white px-2 py-1 text-xs text-text shadow-sm placeholder:text-muted/60 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+            className="field mt-2 py-1 text-xs"
           />
         )}
       </div>
@@ -92,11 +90,11 @@ export function CartLine({
                 qty: Math.max(0, line.qty - 1),
               })
             }
-            className="grid h-7 w-7 place-items-center rounded-full bg-[var(--color-danger-soft-bg)] text-[var(--color-danger-soft-fg)]"
+            className="grid h-7 w-7 place-items-center rounded-full border border-line bg-panel text-accent-strong hover:bg-soft"
           >
             <Minus size={14} />
           </button>
-          <span className="num min-w-[1.5rem] text-center text-sm font-black">
+          <span className="mono num min-w-[1.75rem] text-center text-base font-semibold">
             {line.qty}
           </span>
           <button
@@ -109,19 +107,19 @@ export function CartLine({
                 qty: line.qty + 1,
               })
             }
-            className="grid h-7 w-7 place-items-center rounded-full bg-[var(--color-ok-soft-bg)] text-[var(--color-ok-soft-fg)]"
+            className="grid h-7 w-7 place-items-center rounded-full border border-line bg-panel text-accent-strong hover:bg-soft"
           >
             <Plus size={14} />
           </button>
         </div>
-        <p className="num text-sm font-extrabold text-accent-strong">
+        <p className="mono num text-base font-semibold text-accent-strong">
           {formatTHB(lineTotal)}
         </p>
         <button
           type="button"
           aria-label="Remove from cart"
           onClick={() => dispatch({ type: "REMOVE", productId: product.id })}
-          className="grid h-6 w-6 place-items-center rounded-full bg-[#f6edde] text-muted hover:text-text"
+          className="grid h-6 w-6 place-items-center rounded-full bg-soft text-muted hover:text-text"
         >
           <X size={12} />
         </button>

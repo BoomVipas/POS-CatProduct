@@ -7,15 +7,13 @@ export function HourBars({
 }) {
   const max = Math.max(1, ...hourly.flatMap((h) => [h.today, h.prev]));
   return (
-    <div className="rounded-[var(--radius-lg)] border border-line bg-panel-strong px-5 py-4">
+    <div className="panel-quiet border-l-2 border-line-strong px-5 py-4">
       <div className="flex items-baseline justify-between">
-        <p className="text-xs font-bold uppercase tracking-wider text-muted">
-          By hour
-        </p>
+        <p className="kicker">By hour</p>
         <p className="text-[11px] text-muted">
-          <span className="mr-2 inline-block h-2 w-2 rounded-full bg-accent align-middle" />
+          <span className="mr-2 inline-block h-2 w-2 rounded-full bg-accent-deep align-middle" />
           today
-          <span className="ml-3 mr-2 inline-block h-2 w-2 rounded-full bg-soft align-middle" />
+          <span className="ml-3 mr-2 inline-block h-2 w-2 rounded-full bg-soft-deep align-middle" />
           previous day
         </p>
       </div>
@@ -32,16 +30,16 @@ export function HourBars({
               <div className="relative flex h-32 w-full items-end justify-center gap-0.5">
                 <div
                   aria-hidden
-                  className="w-2 rounded-t bg-soft"
+                  className="w-2 rounded-t bg-soft-deep"
                   style={{ height: `${prevH}%` }}
                 />
                 <div
                   aria-hidden
-                  className="w-2 rounded-t bg-gradient-to-t from-[#a9763f] to-[#7e552a]"
+                  className="w-2 rounded-t bg-gradient-to-t from-accent to-accent-deep"
                   style={{ height: `${todayH}%` }}
                 />
               </div>
-              <span className="text-[10px] text-muted">{h.hour}</span>
+              <span className="mono num text-[10px] text-muted">{h.hour}</span>
             </div>
           );
         })}

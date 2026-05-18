@@ -7,32 +7,39 @@ export function TopSellersTile({
 }) {
   const max = Math.max(1, ...sellers.map((s) => s.revenueSatang));
   return (
-    <div className="rounded-[var(--radius-lg)] border border-line bg-panel-strong px-5 py-4">
-      <p className="text-xs font-bold uppercase tracking-wider text-muted">
-        Top sellers today
-      </p>
-      <ul className="mt-3 grid gap-2">
-        {sellers.map((s) => {
-          const pct = (s.revenueSatang / max) * 100;
-          return (
-            <li key={s.sku}>
-              <div className="flex items-baseline justify-between gap-2 text-sm">
-                <span className="font-extrabold text-text">{s.name}</span>
-                <span className="num text-muted">×{s.qty}</span>
-                <span className="num shrink-0 font-extrabold text-accent-strong">
+    <div className="panel-quiet border-l-2 border-line-strong px-5 py-4">
+      <p className="kicker">Top sellers today</p>
+      <table className="tbl mt-3">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th className="text-right">Qty</th>
+            <th className="text-right">Revenue</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sellers.map((s) => {
+            const pct = (s.revenueSatang / max) * 100;
+            return (
+              <tr key={s.sku}>
+                <td>
+                  <p className="font-semibold text-text">{s.name}</p>
+                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-soft">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-accent to-accent-deep"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </td>
+                <td className="mono num text-right text-muted">×{s.qty}</td>
+                <td className="mono num text-right font-semibold text-accent-deep">
                   {formatTHB(s.revenueSatang)}
-                </span>
-              </div>
-              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-soft">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#a9763f] to-[#7e552a]"
-                  style={{ width: `${pct}%` }}
-                />
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }

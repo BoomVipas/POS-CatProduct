@@ -15,9 +15,6 @@ import {
 } from "@/lib/demo/customer-lifecycle";
 import { PetCardsBlock } from "./PetCardsBlock";
 
-const fieldCls =
-  "w-full rounded-[var(--radius-md)] border border-line bg-white px-3 py-2 text-sm text-text shadow-sm placeholder:text-muted/60 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25";
-
 /**
  * Renders only when cart contains send-later items. Captures shipping info
  * (name, phone, address). Optional email. Persists into the cart store so
@@ -71,15 +68,13 @@ export function CustomerInfoBlock() {
 
   return (
     <div
-      className={`rounded-2xl border p-4 ${
+      className={
         missing
-          ? "border-[var(--color-warn-soft-fg)]/40 bg-[var(--color-warn-soft-bg)]/40"
-          : "border-line bg-panel-strong"
-      }`}
+          ? "panel-quiet p-4 border-[var(--color-warn-soft-fg)]/40 bg-[var(--color-warn-soft-bg)]/35"
+          : "panel-quiet p-4"
+      }
     >
-      <p className="text-xs font-bold uppercase tracking-wider text-muted">
-        {t.pos.customerHeading}
-      </p>
+      <p className="kicker">{t.pos.customerHeading}</p>
       <p className="mt-1 text-xs text-muted">{t.pos.customerHint}</p>
 
       <div className="mt-3 grid gap-2">
@@ -91,7 +86,7 @@ export function CustomerInfoBlock() {
           }
           placeholder={t.pos.customerName}
           autoComplete="name"
-          className={fieldCls}
+          className="field"
         />
         <input
           type="tel"
@@ -102,36 +97,42 @@ export function CustomerInfoBlock() {
           placeholder={t.pos.customerPhone}
           autoComplete="tel"
           inputMode="tel"
-          className={fieldCls}
+          className="field mono num"
         />
 
         {match && (
           <>
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--color-ok-soft-fg)]/30 bg-[var(--color-ok-soft-bg)] px-3 py-2 text-[var(--color-ok-soft-fg)]">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-[var(--radius-md)] border border-[var(--color-ok-soft-fg)]/30 bg-[var(--color-ok-soft-bg)] px-3 py-2 text-[var(--color-ok-soft-fg)]">
               <div className="text-xs">
-                <p className="font-extrabold">
+                <p className="font-semibold">
                   ★ {t.pos.returningCustomer} ·{" "}
-                  {t.pos.ordersCount(match.orderCount)}
+                  <span className="mono num">
+                    {t.pos.ordersCount(match.orderCount)}
+                  </span>
                   {" · "}
-                  <span className="rounded-full bg-white px-1.5 py-0.5 text-[10px] uppercase">
+                  <span className="chip chip-neutral">
                     {lifecycleLabel(lifecycleStageFor(match))}
                   </span>
                   {match.pointsAvailable > 0 && (
                     <>
                       {" · "}
-                      {t.pos.loyaltyPointsAvailable(match.pointsAvailable)}
+                      <span className="mono num">
+                        {t.pos.loyaltyPointsAvailable(match.pointsAvailable)}
+                      </span>
                     </>
                   )}
                 </p>
                 <p className="opacity-80">
                   {match.name ?? "—"} · {t.pos.lastSeen}{" "}
-                  {formatDateTimeTH(match.lastSeenAt)}
+                  <span className="mono">
+                    {formatDateTimeTH(match.lastSeenAt)}
+                  </span>
                 </p>
               </div>
               <button
                 type="button"
                 onClick={autofill}
-                className="rounded-full bg-white px-3 py-1.5 text-[11px] font-extrabold text-[var(--color-ok-soft-fg)] shadow-sm"
+                className="btn-ghost btn-sm"
               >
                 {t.pos.autofillCustomer}
               </button>
@@ -140,16 +141,12 @@ export function CustomerInfoBlock() {
             <PetCardsBlock phone={cart.customer.phone} />
 
             {existingNote && notes.ready && (
-              <div className="rounded-xl border border-line bg-panel p-3">
+              <div className="rounded-[var(--radius-md)] border border-line bg-panel p-3">
                 <div className="flex items-baseline justify-between gap-2">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted">
-                    {t.pos.customerNotesHeader}
-                  </p>
+                  <p className="kicker">{t.pos.customerNotesHeader}</p>
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted">
-                    {t.pos.customerTags}:
-                  </span>
+                  <span className="kicker">{t.pos.customerTags}:</span>
                   {[...new Set([...SUGGESTED_TAGS, ...existingNote.tags])].map(
                     (tag) => {
                       const active = existingNote.tags.includes(tag);
@@ -163,9 +160,7 @@ export function CustomerInfoBlock() {
                             })
                           }
                           className={
-                            active
-                              ? "rounded-full bg-gradient-to-b from-[#a9763f] to-[#7e552a] px-2 py-0.5 text-[10px] font-extrabold text-white"
-                              : "rounded-full border border-line bg-panel px-2 py-0.5 text-[10px] font-extrabold text-accent-strong hover:bg-soft"
+                            active ? "chip chip-gold" : "chip chip-neutral"
                           }
                         >
                           {tag}
@@ -189,7 +184,7 @@ export function CustomerInfoBlock() {
                       }
                     }}
                     placeholder={t.pos.addCustomTag}
-                    className="w-20 rounded-full border border-line bg-white px-2 py-0.5 text-[10px] focus:border-accent focus:outline-none"
+                    className="field w-24 py-0.5 text-[10px]"
                   />
                 </div>
                 <textarea
@@ -201,7 +196,7 @@ export function CustomerInfoBlock() {
                   }
                   placeholder={t.pos.customerNotePlaceholder}
                   rows={2}
-                  className="mt-2 w-full rounded-md border border-line bg-white px-2 py-1 text-xs text-text shadow-sm placeholder:text-muted/60 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+                  className="field mt-2 text-xs"
                 />
               </div>
             )}
@@ -216,7 +211,7 @@ export function CustomerInfoBlock() {
           }
           placeholder={t.pos.customerEmail}
           autoComplete="email"
-          className={fieldCls}
+          className="field"
         />
         <textarea
           value={cart.customer.address}
@@ -228,7 +223,7 @@ export function CustomerInfoBlock() {
           }
           placeholder={t.pos.customerAddress}
           rows={3}
-          className={fieldCls}
+          className="field"
         />
       </div>
       {missing && (

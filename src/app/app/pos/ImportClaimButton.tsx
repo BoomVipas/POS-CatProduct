@@ -67,11 +67,11 @@ export function ImportClaimButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="rounded-full border border-line bg-panel px-3 py-1.5 text-xs font-extrabold text-accent-strong hover:bg-soft"
+        className="btn-ghost btn-sm"
       >
         {t.qrMenu.importHeader}
         {openClaims.length > 0 && (
-          <span className="ml-1.5 inline-grid h-4 w-4 place-items-center rounded-full bg-[var(--color-warn-soft-bg)] text-[10px] text-[var(--color-warn-soft-fg)]">
+          <span className="mono num ml-1.5 inline-grid h-4 min-w-4 place-items-center rounded-full bg-[var(--color-warn-soft-bg)] px-1 text-[10px] font-semibold text-[var(--color-warn-soft-fg)]">
             {openClaims.length}
           </span>
         )}
@@ -86,7 +86,7 @@ export function ImportClaimButton() {
         title={t.qrMenu.importHeader}
         size="sm"
       >
-        <p className="text-sm text-text/85">{t.qrMenu.importBody}</p>
+        <p className="text-sm text-text-soft">{t.qrMenu.importBody}</p>
         <input
           type="text"
           value={code}
@@ -94,7 +94,7 @@ export function ImportClaimButton() {
           placeholder="ABCD"
           autoFocus
           maxLength={6}
-          className="num mt-3 w-full rounded-[var(--radius-md)] border border-line bg-white px-3 py-3 text-center text-3xl font-black tracking-[0.4em] uppercase text-accent-strong focus:border-accent focus:outline-none"
+          className="field mono num mt-3 w-full py-3 text-center text-3xl font-semibold tracking-[0.4em] uppercase text-accent-deep"
         />
         {error && (
           <p className="mt-2 text-xs text-[var(--color-danger-soft-fg)]">
@@ -104,20 +104,20 @@ export function ImportClaimButton() {
 
         {openClaims.length > 0 && (
           <details className="mt-4">
-            <summary className="cursor-pointer text-xs font-bold text-muted">
+            <summary className="cursor-pointer text-xs font-semibold text-muted">
               {t.qrMenu.openClaims(openClaims.length)}
             </summary>
             <ul className="mt-2 grid gap-1 text-xs">
               {openClaims.slice(0, 6).map((c) => (
                 <li
                   key={c.id}
-                  className="flex items-baseline justify-between gap-2 rounded-md border border-line bg-panel px-2 py-1"
+                  className="flex items-baseline justify-between gap-2 rounded-[var(--radius-sm)] border border-line bg-panel px-2 py-1"
                 >
-                  <span className="num font-black tracking-wider text-accent-strong">
+                  <span className="mono num font-semibold tracking-wider text-accent-deep">
                     {c.code}
                   </span>
                   <span className="text-muted">{c.customerName}</span>
-                  <span className="text-muted">
+                  <span className="mono num text-muted">
                     {c.lines.length} item{c.lines.length === 1 ? "" : "s"}
                   </span>
                 </li>

@@ -22,26 +22,43 @@ export default async function PortalPage({
   const { token } = await params;
   if (!token || token.length < 8) {
     return (
-      <main className="mx-auto max-w-lg px-5 py-12">
-        <div className="panel p-6 text-center">
-          <h1 className="font-display text-2xl text-accent-strong">
-            Invalid link
-          </h1>
-          <p className="mt-3 text-sm text-muted">
-            This registration link is malformed. Ask the booth staff for a new
-            one.
-          </p>
-          <Link
-            href="/"
-            className="mt-5 inline-block rounded-[var(--radius-md)] border border-line bg-panel px-5 py-2 text-sm font-bold text-accent-strong"
-          >
-            Home
-          </Link>
-        </div>
-      </main>
+      <div className="theme-public">
+        <main className="mx-auto w-full max-w-md px-5 py-12 sm:py-16">
+          <div className="rise rise-1 mb-6 text-center">
+            <span className="kicker kicker-gold">Cat Booth Portal</span>
+          </div>
+          <div className="rise rise-2 relative">
+            <div className="panel-lift p-7 sm:p-8 text-center">
+              <span className="panel-tag mono">Link</span>
+              <div className="mt-2 flex justify-center">
+                <span className="chip chip-danger">Invalid link</span>
+              </div>
+              <h1 className="headline letterpress mt-5 text-4xl text-accent-deep">
+                This <span className="underline-grow">link</span>
+                <br />
+                doesn&apos;t look right.
+              </h1>
+              <p className="mx-auto mt-5 max-w-[42ch] text-[0.95rem] leading-relaxed text-text-soft">
+                The registration link is malformed. Ask the booth staff for a
+                new one — they can re-issue it from the receipt screen.
+              </p>
+              <div className="fleuron mt-7"><span>※</span></div>
+              <div className="mt-5 flex justify-center">
+                <Link href="/" className="btn-accent btn-xl">
+                  Home
+                </Link>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
     );
   }
-  return <RegisterClient token={token} />;
+  return (
+    <div className="theme-public">
+      <RegisterClient token={token} />
+    </div>
+  );
 }
 
 export const dynamic = "force-dynamic";

@@ -5,9 +5,6 @@ import Link from "next/link";
 import { useDemoCatalog } from "@/lib/demo/useDemoCatalog";
 import { useDemoAudit } from "@/lib/demo/useDemoAudit";
 import { useDemoSales } from "@/lib/demo/useDemoSales";
-import { Button } from "@/components/ui/Button";
-import { Pill } from "@/components/ui/Pill";
-import { EmptyState } from "@/components/ui/States";
 import { useToast } from "@/components/ui/Toast";
 import { formatTHB } from "@/lib/money/format";
 import { useT } from "@/lib/i18n/provider";
@@ -25,6 +22,7 @@ export function CatalogManager() {
   const { t } = useT();
   const [editing, setEditing] = useState<Product | null>(null);
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const { push } = useToast();
 
   const forecastsByProduct = useMemo(() => {
@@ -41,6 +39,17 @@ export function CatalogManager() {
     }
     return out;
   }, [items, orders]);
+
+  const filteredItems = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter(
+      (p) =>
+        p.sku.toLowerCase().includes(q) ||
+        p.name.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q),
+    );
+  }, [items, query]);
 
   function add() {
     setEditing(null);
@@ -161,7 +170,7 @@ export function CatalogManager() {
 
   if (!ready) {
     return (
-      <div className="panel mt-8 p-8 text-center text-sm text-muted">
+      <div className="panel-quiet mt-8 p-10 text-center text-sm text-muted">
         Loading…
       </div>
     );
@@ -170,26 +179,43 @@ export function CatalogManager() {
   if (items.length === 0) {
     return (
       <>
-        <div className="mt-8">
-          <EmptyState
-            title="No products yet."
-            body="Add your first product card, or load the sample catalog to skip ahead and see the POS in action."
-            action={
-              <div className="flex flex-wrap justify-center gap-2">
-                <Button onClick={add}>+ Add product</Button>
-                <Button variant="secondary" onClick={handleSeed}>
-                  Load sample catalog
-                </Button>
-              </div>
-            }
-          />
-        </div>
-        <Link
-          href="/app/pos"
-          className="mt-6 inline-block text-sm font-bold text-accent-strong"
-        >
-          Try the POS with bundled demo products →
-        </Link>
+        <header className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="kicker kicker-gold">Catalog</div>
+            <h1 className="headline-upright text-3xl mt-2 text-accent-deep">
+              {t.setupProducts.title}
+            </h1>
+            <p className="mt-2 max-w-[62ch] text-sm text-text-soft">
+              {t.setupProducts.body}
+            </p>
+          </div>
+        </header>
+
+        <section className="panel-quiet mt-10 px-6 py-16 text-center">
+          <div className="kicker kicker-gold justify-center">Catalog</div>
+          <p
+            className="headline mt-4 text-4xl text-accent-deep letterpress"
+            style={{ fontStyle: "italic" }}
+          >
+            Add your first product
+          </p>
+          <p className="mt-4 mx-auto max-w-[52ch] text-sm text-text-soft">
+            {t.setupProducts.emptyBody}
+          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <button type="button" onClick={add} className="btn-accent btn-lg">
+              {t.setupProducts.addProduct}
+            </button>
+            <button type="button" onClick={handleSeed} className="btn-ghost btn-md">
+              {t.setupProducts.loadSample}
+            </button>
+          </div>
+          <p className="mt-6 text-xs text-muted">{t.setupProducts.demoNote}</p>
+          <Link href="/app/pos" className="btn-link mt-6 inline-block text-sm">
+            {t.setupProducts.tryDemo}
+          </Link>
+        </section>
+
         <ProductFormModal
           open={open}
           onClose={() => setOpen(false)}
@@ -201,131 +227,216 @@ export function CatalogManager() {
     );
   }
 
+  const activeCount = items.filter((p) => p.is_active).length;
+
   return (
     <>
-      <div className="mt-6 flex items-center justify-between gap-3">
-        <p className="text-sm text-muted">
-          {items.length} product{items.length === 1 ? "" : "s"} ·{" "}
-          {items.filter((p) => p.is_active).length} active
-        </p>
-        <Button onClick={add}>+ Add product</Button>
-      </div>
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <div className="kicker kicker-gold">Catalog</div>
+          <h1 className="headline-upright text-3xl mt-2 text-accent-deep">
+            {t.setupProducts.title}
+          </h1>
+          <p className="mt-2 max-w-[62ch] text-sm text-text-soft">
+            {t.setupProducts.body}
+          </p>
+          <p className="mt-1 text-xs text-muted">
+            <span className="num">{items.length}</span> {t.setupProducts.countSummary}
+            {" · "}
+            <span className="num">{activeCount}</span> {t.setupProducts.activeSuffix}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="w-64">
+            <label className="field-label" htmlFor="catalog-search">
+              Search
+            </label>
+            <input
+              id="catalog-search"
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.currentTarget.value)}
+              placeholder="SKU, name, category"
+              className="field text-right"
+            />
+          </div>
+          <button type="button" onClick={add} className="btn-accent btn-md">
+            {t.setupProducts.addProduct}
+          </button>
+        </div>
+      </header>
 
-      <ul className="mt-4 grid gap-2">
-        {items.map((p) => (
-          <li
-            key={p.id}
-            className={`grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-[var(--radius-lg)] border border-line ${p.is_active ? "bg-panel" : "bg-soft/40"} px-4 py-3`}
-          >
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-baseline gap-2">
-                <span className="num text-xs font-bold text-muted">{p.sku}</span>
-                <span className="font-extrabold text-text">{p.name}</span>
-                {p.pinned && <Pill tone="accent">★ {t.setupProducts.pinned}</Pill>}
-                {!p.is_active && <Pill tone="neutral">inactive</Pill>}
-                {p.send_later_enabled && <Pill tone="ok">send-later</Pill>}
-              </div>
-              <p className="mt-1 text-xs text-muted">
-                {p.category} ·{" "}
-                <span className="num">
-                  {formatTHB(p.price_satang)} THB
-                </span>
-                {p.cost_satang && p.cost_satang > 0 && (
-                  <>
-                    {" · cost "}
-                    <span className="num">
-                      {formatTHB(p.cost_satang)}
-                    </span>
-                    {" · margin "}
-                    <span className="num font-extrabold text-[var(--color-ok-soft-fg)]">
-                      {Math.round(
-                        ((p.price_satang - p.cost_satang) / p.price_satang) *
-                          100,
-                      )}
-                      %
-                    </span>
-                  </>
-                )}
-                {p.shipping_fee_satang > 0 && (
-                  <>
-                    {" · ship "}
-                    <span className="num">
-                      {formatTHB(p.shipping_fee_satang)} THB
-                    </span>
-                  </>
-                )}
-                {" · stock "}
-                <span
-                  className={
-                    typeof p.reorder_point === "number" &&
-                    p.reorder_point > 0 &&
-                    p.current_qty <= p.reorder_point
-                      ? "num font-extrabold text-[var(--color-warn-soft-fg)]"
-                      : "num"
-                  }
-                >
-                  {p.current_qty}
-                </span>
-                {typeof p.reorder_point === "number" &&
-                  p.reorder_point > 0 && (
-                    <>
-                      {" / reorder@"}
-                      <span className="num">{p.reorder_point}</span>
-                    </>
-                  )}
-              </p>
-              {(() => {
-                const f = forecastsByProduct.get(p.id);
-                if (!f || f.window.qtySold === 0) return null;
+      <section className="panel-quiet mt-8 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="tbl">
+            <thead>
+              <tr>
+                <th style={{ width: "72px" }}>Image</th>
+                <th>Product</th>
+                <th>SKU</th>
+                <th className="text-right">Price</th>
+                <th className="text-right">Stock</th>
+                <th className="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredItems.map((p) => {
+                const lowStock =
+                  typeof p.reorder_point === "number" &&
+                  p.reorder_point > 0 &&
+                  p.current_qty <= p.reorder_point;
+                const outOfStock = p.current_qty <= 0;
+                const stockChip = outOfStock
+                  ? "chip chip-danger"
+                  : lowStock
+                    ? "chip chip-warn"
+                    : "chip chip-ok";
+                const stockLabel = outOfStock
+                  ? "out"
+                  : lowStock
+                    ? "low"
+                    : "ok";
+                const forecast = forecastsByProduct.get(p.id);
                 return (
-                  <p className="mt-1 text-[11px] font-bold text-[var(--color-warn-soft-fg)]">
-                    {t.pos.forecastSold(f.window.qtySold, 30)}
-                    {f.suggestRestockQty > 0 && (
-                      <>
-                        {" · "}
-                        {t.pos.forecastSuggestRestock(f.suggestRestockQty)}
-                      </>
-                    )}
-                  </p>
+                  <tr key={p.id} className={p.is_active ? "" : "opacity-60"}>
+                    <td>
+                      <div className="h-14 w-14 overflow-hidden rounded-[var(--radius-md)] border border-line-soft bg-soft">
+                        {p.image_path ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={p.image_path}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="grid h-full w-full place-items-center text-[9px] font-bold uppercase tracking-wider text-faint">
+                            no img
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="headline-upright text-base text-text">
+                        {p.name}
+                      </div>
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted">
+                        <span>{p.category}</span>
+                        {p.pinned && (
+                          <span className="chip chip-gold">★ {t.setupProducts.pinned}</span>
+                        )}
+                        {!p.is_active && (
+                          <span className="chip chip-neutral">inactive</span>
+                        )}
+                        {p.send_later_enabled && (
+                          <span className="chip chip-info">send-later</span>
+                        )}
+                      </div>
+                      {forecast && forecast.window.qtySold > 0 && (
+                        <p className="mt-1.5 text-[11px] font-semibold text-[var(--color-warn-soft-fg)]">
+                          {t.pos.forecastSold(forecast.window.qtySold, 30)}
+                          {forecast.suggestRestockQty > 0 && (
+                            <>
+                              {" · "}
+                              {t.pos.forecastSuggestRestock(forecast.suggestRestockQty)}
+                            </>
+                          )}
+                        </p>
+                      )}
+                    </td>
+                    <td>
+                      <span className="mono text-xs text-text-soft">{p.sku}</span>
+                    </td>
+                    <td className="text-right">
+                      <div className="mono num text-sm text-text">
+                        {formatTHB(p.price_satang)}
+                      </div>
+                      {p.cost_satang && p.cost_satang > 0 && (
+                        <div className="mono num text-[11px] text-muted">
+                          cost {formatTHB(p.cost_satang)}
+                          {" · "}
+                          <span className="text-[var(--color-ok-soft-fg)] font-semibold">
+                            {Math.round(
+                              ((p.price_satang - p.cost_satang) /
+                                p.price_satang) *
+                                100,
+                            )}
+                            %
+                          </span>
+                        </div>
+                      )}
+                      {p.shipping_fee_satang > 0 && (
+                        <div className="mono num text-[11px] text-muted">
+                          ship {formatTHB(p.shipping_fee_satang)}
+                        </div>
+                      )}
+                    </td>
+                    <td className="text-right">
+                      <div className="inline-flex items-center gap-2">
+                        <span className="mono num text-sm text-text">
+                          {p.current_qty}
+                        </span>
+                        <span className={stockChip}>{stockLabel}</span>
+                      </div>
+                      {typeof p.reorder_point === "number" &&
+                        p.reorder_point > 0 && (
+                          <div className="mono num text-[11px] text-muted">
+                            reorder@{p.reorder_point}
+                          </div>
+                        )}
+                    </td>
+                    <td className="text-right">
+                      <div className="inline-flex flex-wrap justify-end gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => edit(p)}
+                          className="btn-ghost btn-sm"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSetPinned(p, !p.pinned)}
+                          className="btn-ghost btn-sm"
+                        >
+                          {p.pinned ? t.setupProducts.unpin : t.setupProducts.pin}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSetActive(p, !p.is_active)}
+                          className="btn-ghost btn-sm"
+                        >
+                          {p.is_active ? "Deactivate" : "Activate"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRemove(p)}
+                          className="btn-ghost btn-sm text-[var(--color-danger-soft-fg)]"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 );
-              })()}
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Button size="sm" variant="secondary" onClick={() => edit(p)}>
-                Edit
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleSetPinned(p, !p.pinned)}
-              >
-                {p.pinned ? t.setupProducts.unpin : t.setupProducts.pin}
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleSetActive(p, !p.is_active)}
-              >
-                {p.is_active ? "Deactivate" : "Activate"}
-              </Button>
-              <Button
-                size="sm"
-                variant="danger"
-                onClick={() => handleRemove(p)}
-              >
-                Remove
-              </Button>
-            </div>
-          </li>
-        ))}
-      </ul>
+              })}
+              {filteredItems.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="text-center text-sm text-muted">
+                    No products match{query ? ` "${query}"` : ""}.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-      <Link
-        href="/app/pos"
-        className="mt-6 inline-block text-sm font-bold text-accent-strong"
-      >
-        Open POS →
-      </Link>
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <Link href="/app/pos" className="btn-link text-sm">
+          {t.setupProducts.openPos}
+        </Link>
+        <p className="text-xs text-muted">{t.setupProducts.demoNote}</p>
+      </div>
 
       <ProductFormModal
         open={open}

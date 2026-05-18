@@ -1,8 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { Button } from "@/components/ui/Button";
-import { Pill } from "@/components/ui/Pill";
 import { useToast } from "@/components/ui/Toast";
 import { useDemoCatalog } from "@/lib/demo/useDemoCatalog";
 import { useDemoStockCount } from "@/lib/demo/useDemoStockCount";
@@ -72,8 +70,6 @@ export function StockCountManager() {
       });
       return;
     }
-    // Apply each counted line: set product current_qty and write per-line
-    // audit. Skip lines that weren't counted (countedQty === null).
     const sum = sessionVarianceSummary(open);
     let applied = 0;
     for (const line of open.lines) {
@@ -141,9 +137,9 @@ export function StockCountManager() {
 
   if (!catalog.ready || !counts.ready) {
     return (
-      <p className="mt-8 rounded-2xl border border-line bg-panel px-4 py-6 text-center text-sm text-muted">
-        Loading…
-      </p>
+      <div className="panel-quiet mt-8 px-4 py-6 text-center">
+        <p className="text-sm text-muted">Loading…</p>
+      </div>
     );
   }
 
@@ -163,61 +159,67 @@ export function StockCountManager() {
           onCancel={handleCancel}
         />
       ) : (
-        <div className="panel mt-6 p-5 text-center">
-          <p className="text-sm text-text/85">
-            No open count session. Start one when you finish a multi-day
-            event or whenever warehouse stock looks off.
-          </p>
-          <Button onClick={handleOpen} className="mt-3">
-            + Open new count session
-          </Button>
-        </div>
+        <section className="mt-8">
+          <div className="panel-lift p-8 text-center">
+            <p className="kicker">Idle</p>
+            <p className="headline-upright mt-2 text-2xl text-accent-deep">
+              No open count session
+            </p>
+            <p className="mx-auto mt-2 max-w-[52ch] text-sm text-text-soft">
+              Start one when you finish a multi-day event or whenever warehouse
+              stock looks off.
+            </p>
+            <button
+              onClick={handleOpen}
+              className="btn-accent btn-lg mt-5"
+              type="button"
+            >
+              Open new count session
+            </button>
+          </div>
+        </section>
       )}
 
       {history.length > 0 && (
-        <section className="mt-8">
-          <p className="text-xs font-bold uppercase tracking-wider text-muted">
-            Recent counts
-          </p>
-          <ul className="mt-2 grid gap-2">
+        <section className="mt-10">
+          <div className="flex items-end justify-between border-b border-line-soft pb-2">
+            <p className="kicker">Recent counts</p>
+            <span className="mono num text-xs text-faint">
+              {history.length} session{history.length === 1 ? "" : "s"}
+            </span>
+          </div>
+          <ul className="mt-3 grid gap-2">
             {history.map((s) => {
               const sum = sessionVarianceSummary(s);
+              const netChip =
+                sum.netUnits === 0
+                  ? "chip chip-neutral"
+                  : sum.netUnits > 0
+                    ? "chip chip-ok"
+                    : "chip chip-warn";
               return (
-                <li
-                  key={s.id}
-                  className="rounded-[var(--radius-lg)] border border-line bg-panel px-4 py-3"
-                >
+                <li key={s.id} className="panel-quiet px-4 py-3">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <div>
-                      <span className="text-xs font-bold text-muted">
+                    <div className="flex items-center gap-2">
+                      <span className="mono num text-xs text-muted">
                         {formatDateTimeTH(s.openedAt)}
                       </span>
                       {s.status === "committed" && (
-                        <span className="ml-2">
-                          <Pill tone="ok">committed</Pill>
-                        </span>
+                        <span className="chip chip-ok">committed</span>
                       )}
                       {s.status === "cancelled" && (
-                        <span className="ml-2">
-                          <Pill tone="neutral">cancelled</Pill>
-                        </span>
+                        <span className="chip chip-neutral">cancelled</span>
                       )}
                     </div>
-                    <span className="text-xs font-bold text-muted">
-                      {sum.countedLines} of {sum.totalLines} counted ·{" "}
-                      <span
-                        className={
-                          sum.netUnits === 0
-                            ? "text-muted"
-                            : sum.netUnits > 0
-                              ? "text-[var(--color-ok-soft-fg)]"
-                              : "text-[var(--color-warn-soft-fg)]"
-                        }
-                      >
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="mono num text-muted">
+                        {sum.countedLines}/{sum.totalLines} counted
+                      </span>
+                      <span className={netChip}>
                         net {sum.netUnits >= 0 ? "+" : ""}
                         {sum.netUnits}
                       </span>
-                    </span>
+                    </div>
                   </div>
                 </li>
               );
@@ -250,78 +252,132 @@ function OpenSessionCard({
 }) {
   const sum = sessionVarianceSummary(session);
   const guard = sessionCommittable(session);
+  const remaining = sum.totalLines - sum.countedLines;
+  const netUnits = sum.netUnits;
+  const netLabel = `${netUnits >= 0 ? "+" : ""}${netUnits}`;
+  const statusChip =
+    remaining === 0 ? "chip chip-ok" : "chip chip-gold";
+
   return (
-    <section className="mt-6">
-      <header className="rounded-[var(--radius-lg)] border border-line bg-panel-strong px-4 py-3">
-        <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-muted">
-              Open count session
-            </p>
-            <p className="mt-1 text-sm font-extrabold text-accent-strong">
-              {sum.countedLines} of {sum.totalLines} SKUs counted
-            </p>
+    <>
+      <section className="mt-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-line-soft pb-3">
+          <div className="flex items-center gap-3">
+            <p className="kicker">Session</p>
+            <span className={statusChip}>
+              {remaining === 0 ? "ready to submit" : "in progress"}
+            </span>
           </div>
-          <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className="font-bold text-[var(--color-ok-soft-fg)]">
-              +{sum.unitsFound} found
-            </span>
-            <span className="font-bold text-[var(--color-warn-soft-fg)]">
-              −{sum.unitsLost} lost
-            </span>
-            <span
+          <p className="mono num text-xs text-faint">
+            opened {formatDateTimeTH(session.openedAt)}
+          </p>
+        </div>
+
+        {/* KPI tiles */}
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="panel-quiet border-l-2 border-gold px-4 py-3">
+            <p className="kicker">Remaining</p>
+            <p className="mono num text-3xl text-accent-deep mt-1">
+              {remaining}
+            </p>
+            <p className="mt-1 text-xs text-muted">SKUs left to count</p>
+          </div>
+          <div className="panel-quiet border-l-2 border-gold px-4 py-3">
+            <p className="kicker">Counted</p>
+            <p className="mono num text-3xl text-accent-deep mt-1">
+              {sum.countedLines}
+              <span className="text-lg text-faint"> / {sum.totalLines}</span>
+            </p>
+            <p className="mt-1 text-xs text-muted">SKUs entered</p>
+          </div>
+          <div className="panel-quiet border-l-2 border-gold px-4 py-3">
+            <p className="kicker">Net variance</p>
+            <p
               className={
-                sum.netUnits === 0
-                  ? "font-extrabold text-muted"
-                  : sum.netUnits > 0
-                    ? "font-extrabold text-[var(--color-ok-soft-fg)]"
-                    : "font-extrabold text-[var(--color-warn-soft-fg)]"
+                "mono num text-3xl mt-1 " +
+                (netUnits === 0
+                  ? "text-accent-deep"
+                  : netUnits > 0
+                    ? "text-[var(--color-ok-soft-fg)]"
+                    : "text-[var(--color-warn-soft-fg)]")
               }
             >
-              net {sum.netUnits >= 0 ? "+" : ""}
-              {sum.netUnits}
-            </span>
+              {netLabel}
+            </p>
+            <p className="mt-1 mono num text-xs text-muted">
+              +{sum.unitsFound} found · −{sum.unitsLost} lost
+            </p>
           </div>
         </div>
-      </header>
 
-      <ul className="mt-3 grid gap-2">
-        {session.lines.map((line) => (
-          <CountLineRow
-            key={line.productId}
-            line={line}
-            onSetCount={(qty) => onSetCount(line.productId, qty)}
-            onSetReason={(reason, note) =>
-              onSetReason(line.productId, reason, note)
-            }
-          />
-        ))}
-      </ul>
+        {/* Count list */}
+        <div className="panel-lift mt-5 p-4 sm:p-5">
+          <div className="flex items-end justify-between border-b border-line-soft pb-2">
+            <p className="kicker">Count list</p>
+            <span className="mono num text-xs text-faint">
+              {session.lines.length} SKU
+              {session.lines.length === 1 ? "" : "s"}
+            </span>
+          </div>
+          <ul className="mt-3 grid gap-2">
+            {session.lines.map((line) => (
+              <CountLineRow
+                key={line.productId}
+                line={line}
+                onSetCount={(qty) => onSetCount(line.productId, qty)}
+                onSetReason={(reason, note) =>
+                  onSetReason(line.productId, reason, note)
+                }
+              />
+            ))}
+          </ul>
 
-      <textarea
-        value={session.notes ?? ""}
-        onChange={(e) => onSetNotes(e.currentTarget.value)}
-        placeholder="Session notes (optional) — e.g. 'After Pet Expo Bitec May 2026 load-in'"
-        rows={2}
-        className="mt-4 w-full rounded-[var(--radius-md)] border border-line bg-white px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
-      />
+          <div className="mt-4">
+            <label
+              htmlFor="session-notes"
+              className="field-label"
+            >
+              Session notes
+            </label>
+            <textarea
+              id="session-notes"
+              value={session.notes ?? ""}
+              onChange={(e) => onSetNotes(e.currentTarget.value)}
+              placeholder="Optional — e.g. 'After Pet Expo Bitec May 2026 load-in'"
+              rows={2}
+              className="field"
+            />
+          </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xs text-muted">
-          {guard.ok
-            ? "Ready to commit. Stock will be set to counted qty and audit log will record per-line variance."
-            : guard.reason}
-        </p>
-        <div className="flex gap-2">
-          <Button variant="ghost" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button onClick={onCommit} disabled={!guard.ok}>
-            Commit count
-          </Button>
+          {!guard.ok && (
+            <p className="mt-3 text-xs text-[var(--color-warn-soft-fg)]">
+              {guard.reason}
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* Sticky action bar */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-panel-strong/95 px-4 py-3 backdrop-blur-sm sm:static sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+        <div className="mx-auto flex max-w-5xl flex-col-reverse items-stretch gap-2 sm:flex-row sm:items-center sm:justify-end">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="btn-ghost btn-md"
+          >
+            Save draft
+          </button>
+          <button
+            type="button"
+            onClick={onCommit}
+            disabled={!guard.ok}
+            className="btn-accent btn-xl w-full sm:w-auto"
+          >
+            Submit count
+          </button>
         </div>
       </div>
-    </section>
+    </>
   );
 }
 
@@ -339,43 +395,30 @@ function CountLineRow({
 }) {
   const v = lineVariance(line);
   const committable = lineCommittable(line);
-  const tone =
+  const varianceChip =
     v === null
-      ? "border-line bg-panel"
+      ? null
       : v === 0
-        ? "border-[var(--color-ok-soft-fg)]/40 bg-[var(--color-ok-soft-bg)]/40"
-        : "border-[var(--color-warn-soft-fg)]/40 bg-[var(--color-warn-soft-bg)]/40";
+        ? { cls: "chip chip-ok", label: "match" }
+        : Math.abs(v) <= 2
+          ? {
+              cls: "chip chip-warn",
+              label: `${v > 0 ? "+" : ""}${v}`,
+            }
+          : {
+              cls: "chip chip-danger",
+              label: `${v > 0 ? "+" : ""}${v}`,
+            };
+
   return (
-    <li
-      className={`grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-[var(--radius-lg)] border ${tone} px-3 py-2`}
-    >
+    <li className="panel-quiet grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4">
       <div className="min-w-0">
-        <p className="num text-[10px] font-bold text-muted">{line.sku}</p>
-        <p className="line-clamp-1 text-sm font-extrabold text-text">
+        <p className="headline-upright text-base text-text leading-tight">
           {line.name}
         </p>
-        <p className="text-[11px] text-muted">
-          expected <span className="num">{line.expectedQty}</span>
-          {v !== null && v !== 0 && (
-            <>
-              {" · variance "}
-              <span
-                className={
-                  v > 0
-                    ? "num font-extrabold text-[var(--color-ok-soft-fg)]"
-                    : "num font-extrabold text-[var(--color-warn-soft-fg)]"
-                }
-              >
-                {v > 0 ? "+" : ""}
-                {v}
-              </span>
-            </>
-          )}
-          {v === 0 && (
-            <span className="ml-1 font-bold text-[var(--color-ok-soft-fg)]">
-              · match
-            </span>
-          )}
+        <p className="mt-0.5 mono num text-xs text-faint">
+          {line.sku} · expected{" "}
+          <span className="text-muted">{line.expectedQty}</span>
         </p>
         {v !== null && v !== 0 && (
           <div className="mt-2 flex flex-wrap gap-1">
@@ -386,8 +429,8 @@ function CountLineRow({
                 onClick={() => onSetReason(r, line.reasonNote)}
                 className={
                   line.reason === r
-                    ? "rounded-full bg-[#7e552a] px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white"
-                    : "rounded-full bg-panel px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted hover:text-accent-strong"
+                    ? "chip chip-gold"
+                    : "chip chip-neutral hover:text-accent-strong"
                 }
               >
                 {r}
@@ -396,26 +439,36 @@ function CountLineRow({
           </div>
         )}
       </div>
+
       <div className="flex flex-col items-end gap-1">
         <input
           type="number"
+          inputMode="numeric"
           min={0}
           step={1}
           value={line.countedQty ?? ""}
           onChange={(e) => {
-            const v = e.currentTarget.value;
-            if (v === "") return onSetCount(null);
-            const n = Number(v);
+            const val = e.currentTarget.value;
+            if (val === "") return onSetCount(null);
+            const n = Number(val);
             if (!Number.isFinite(n)) return;
             onSetCount(Math.max(0, Math.floor(n)));
           }}
           placeholder="—"
           aria-label={`Counted qty for ${line.sku}`}
-          className="num w-20 rounded-md border border-line bg-white px-2 py-1.5 text-right text-sm font-extrabold focus:border-accent focus:outline-none"
+          className="field mono num w-24 text-right text-lg font-bold"
         />
         {v !== null && v !== 0 && !committable && (
-          <span className="text-[10px] font-bold text-[var(--color-warn-soft-fg)]">
+          <span className="mono text-[10px] font-bold uppercase tracking-wider text-[var(--color-warn-soft-fg)]">
             pick reason
+          </span>
+        )}
+      </div>
+
+      <div className="flex w-16 justify-end">
+        {varianceChip && (
+          <span className={varianceChip.cls + " mono num"}>
+            {varianceChip.label}
           </span>
         )}
       </div>

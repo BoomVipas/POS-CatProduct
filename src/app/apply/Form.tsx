@@ -54,7 +54,7 @@ export function ApplyForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4" noValidate>
+    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-5" noValidate>
       {/* honeypot */}
       <input
         {...register("website")}
@@ -68,7 +68,7 @@ export function ApplyForm() {
       <Field label="Your name" error={errors.owner_name?.message}>
         <input
           {...register("owner_name")}
-          className={inputCls}
+          className="field"
           placeholder="e.g. Aim Visan"
           autoComplete="name"
         />
@@ -77,7 +77,7 @@ export function ApplyForm() {
       <Field label="Phone number" error={errors.phone?.message}>
         <input
           {...register("phone")}
-          className={inputCls}
+          className="field mono"
           placeholder="0xx-xxx-xxxx"
           autoComplete="tel"
           inputMode="tel"
@@ -88,7 +88,7 @@ export function ApplyForm() {
         <input
           {...register("email")}
           type="email"
-          className={inputCls}
+          className="field"
           placeholder="you@brand.com"
           autoComplete="email"
         />
@@ -97,7 +97,7 @@ export function ApplyForm() {
       <Field label="Brand name" error={errors.brand_name?.message}>
         <input
           {...register("brand_name")}
-          className={inputCls}
+          className="field"
           placeholder="e.g. Meow House"
           autoComplete="organization"
         />
@@ -106,7 +106,7 @@ export function ApplyForm() {
       <Field label="Product category" error={errors.product_category?.message}>
         <input
           {...register("product_category")}
-          className={inputCls}
+          className="field"
           placeholder="e.g. Cat apparel, treats, toys"
         />
       </Field>
@@ -118,18 +118,18 @@ export function ApplyForm() {
         <input
           {...register("social_link")}
           type="url"
-          className={inputCls}
+          className="field"
           placeholder="https://..."
         />
       </Field>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-2">
         <Field label="# of active SKUs" error={errors.num_skus?.message}>
           <input
             {...register("num_skus")}
             type="number"
             min={0}
-            className={inputCls}
+            className="field mono"
             placeholder="e.g. 25"
             inputMode="numeric"
           />
@@ -142,7 +142,7 @@ export function ApplyForm() {
             {...register("events_per_year")}
             type="number"
             min={0}
-            className={inputCls}
+            className="field mono"
             placeholder="e.g. 6"
             inputMode="numeric"
           />
@@ -152,37 +152,35 @@ export function ApplyForm() {
       <Field label="Why us? (optional)" error={errors.message?.message}>
         <textarea
           {...register("message")}
-          className={`${inputCls} min-h-[110px]`}
+          className="field min-h-[120px] resize-y"
           placeholder="Anything you want us to know"
         />
       </Field>
 
       {serverError && (
-        <p
+        <div
           role="alert"
-          className="rounded-[var(--radius-md)] border border-[var(--color-danger-soft-fg)] bg-[var(--color-danger-soft-bg)] px-4 py-3 text-sm text-[var(--color-danger-soft-fg)]"
+          className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[color-mix(in_oklch,var(--color-danger-soft-fg)_28%,transparent)] bg-[var(--color-danger-soft-bg)] px-4 py-3"
         >
-          {serverError}
-        </p>
+          <span className="chip chip-danger shrink-0">Error</span>
+          <p className="text-sm leading-relaxed text-[var(--color-danger-soft-fg)]">
+            {serverError}
+          </p>
+        </div>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="btn-accent rounded-[var(--radius-md)] px-6 py-3 text-base font-bold"
-      >
-        {pending ? "Submitting…" : "Submit application"}
-      </button>
-
-      <p className="text-xs text-muted">
-        We review applications manually. Expect a reply within 3 working days.
-      </p>
+      <div className="mt-2 flex flex-wrap items-center gap-3">
+        <button
+          type="submit"
+          disabled={pending}
+          className="btn-accent btn-lg"
+        >
+          {pending ? "Submitting…" : "Submit application"}
+        </button>
+      </div>
     </form>
   );
 }
-
-const inputCls =
-  "w-full rounded-[var(--radius-md)] border border-line bg-panel px-3 py-2.5 text-base text-text shadow-sm placeholder:text-muted/60 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25";
 
 function Field({
   label,
@@ -195,13 +193,11 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-sm font-bold text-accent-strong">
-        {label}
-      </span>
+      <span className="field-label">{label}</span>
       {children}
       {error && (
-        <span className="mt-1 block text-xs text-[var(--color-danger-soft-fg)]">
-          {error}
+        <span className="mt-2 inline-flex">
+          <span className="chip chip-danger">{error}</span>
         </span>
       )}
     </label>

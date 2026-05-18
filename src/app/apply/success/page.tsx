@@ -4,23 +4,21 @@ import { getDict } from "@/lib/i18n/server";
 export default async function ApplySuccessPage() {
   const { t } = await getDict();
   return (
-    <main className="flex-1">
-      <section className="mx-auto max-w-xl px-5 py-16 text-center">
-        <h1 className="font-display text-4xl leading-tight tracking-tight text-accent-strong">
-          {t.apply.successTitle}
+    <main className="theme-public flex-1">
+      <section className="mx-auto max-w-2xl px-6 py-24 text-center">
+        <h1 className="rise rise-1 headline letterpress text-5xl text-accent-deep">
+          <span className="underline-grow">{t.apply.successTitle}</span>
         </h1>
-        <p className="mt-4 text-text/85">{t.apply.successBody}</p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link
-            href="/"
-            className="rounded-[var(--radius-md)] border border-line bg-panel px-5 py-3 text-sm font-bold text-accent-strong"
-          >
+        <div className="rise rise-2 mt-10">
+          <p className="mx-auto max-w-[52ch] text-base leading-relaxed text-text-soft">
+            {t.apply.successBody}
+          </p>
+        </div>
+        <div className="rise rise-3 mt-12 flex flex-wrap items-center justify-center gap-4">
+          <Link href="/" className="btn-accent btn-lg">
             {t.common.home}
           </Link>
-          <Link
-            href="/apply/status"
-            className="btn-accent rounded-[var(--radius-md)] px-5 py-3 text-sm font-bold"
-          >
+          <Link href="/apply/status" className="btn-link text-sm">
             {t.landing.ctaStatus}
           </Link>
         </div>

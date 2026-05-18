@@ -50,7 +50,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
           value={query}
           onChange={(e) => setQuery(e.currentTarget.value)}
           placeholder={t.pos.searchPlaceholder}
-          className="flex-1 min-w-[180px] rounded-[var(--radius-md)] border border-line bg-panel px-3 py-2 text-sm text-text shadow-sm placeholder:text-muted/60 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+          className="field flex-1 min-w-[200px]"
         />
         <div className="flex flex-wrap gap-1">
           {categories.map((c) => (
@@ -60,8 +60,8 @@ export function ProductGrid({ products }: { products: Product[] }) {
               onClick={() => setCategory(c)}
               className={
                 c === category
-                  ? "rounded-full border border-accent-strong bg-accent px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white"
-                  : "rounded-full border border-line bg-panel px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-strong"
+                  ? "chip chip-gold"
+                  : "chip chip-neutral hover:bg-soft-deep"
               }
             >
               {c === "all" ? t.common.all : c}
@@ -71,7 +71,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-line bg-white px-4 py-10 text-center text-sm text-muted">
+        <p className="panel-quiet px-4 py-10 text-center text-sm text-muted">
           {t.pos.noMatch}
         </p>
       ) : (
