@@ -14,26 +14,24 @@ export function DeltaChip({
 }) {
   if (pct === null) {
     return (
-      <span className="rounded-full bg-soft px-2 py-0.5 text-[10px] font-bold text-muted">
+      <span className="chip chip-neutral">
         — {label}
       </span>
     );
   }
   const goodSide = invert ? pct < 0 : pct > 0;
   const isFlat = pct === 0;
-  const tone = isFlat
-    ? "bg-soft text-muted"
+  const cls = isFlat
+    ? "chip chip-neutral"
     : goodSide
-      ? "bg-[var(--color-ok-soft-bg)] text-[var(--color-ok-soft-fg)]"
-      : "bg-[var(--color-warn-soft-bg)] text-[var(--color-warn-soft-fg)]";
+      ? "chip chip-ok"
+      : "chip chip-danger";
   const arrow = isFlat ? "·" : pct > 0 ? "▲" : "▼";
   return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-extrabold ${tone}`}
-    >
+    <span className={cls}>
       <span>{arrow}</span>
-      <span>{Math.abs(pct).toFixed(1)}%</span>
-      <span className="font-bold opacity-70">{label}</span>
+      <span className="num">{Math.abs(pct).toFixed(1)}%</span>
+      <span className="font-semibold opacity-80">{label}</span>
     </span>
   );
 }

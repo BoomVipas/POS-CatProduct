@@ -1,42 +1,68 @@
 import Link from "next/link";
 
 export default function AdminHomePage() {
+  const today = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+
   return (
     <div>
-      <h1 className="font-display text-3xl text-accent-strong">Admin home</h1>
-      <p className="mt-2 text-text/85">Pilot operations.</p>
-      <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-        <Card
+      <header className="flex flex-wrap items-end justify-between gap-3 border-b border-line pb-5">
+        <div>
+          <p className="kicker">Admin</p>
+          <h1 className="headline-upright mt-1 text-2xl text-accent-deep">
+            Pilot operations
+          </h1>
+        </div>
+        <p className="mono text-xs text-muted tabular">{today}</p>
+      </header>
+
+      <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+        <Tile
           href="/admin/applications"
+          kicker="Intake"
           title="Applications"
           body="Pending pilot applications."
         />
-        <Card
+        <Tile
           href="/admin/invite-codes"
+          kicker="Access"
           title="Invite codes"
           body="Issued, used, expired."
         />
-        <Card
+        <Tile
           href="/admin/workspaces"
+          kicker="Tenants"
           title="Workspaces"
           body="Active pilot brands."
         />
-        <Card
+        <Tile
           href="/admin/audit-log"
+          kicker="Trail"
           title="Audit log"
           body="Approvals, voids, corrections."
+        />
+        <Tile
+          href="/admin/pilot-status"
+          kicker="Health"
+          title="Pilot status"
+          body="Cohort progress and milestones."
         />
       </ul>
     </div>
   );
 }
 
-function Card({
+function Tile({
   href,
+  kicker,
   title,
   body,
 }: {
   href: string;
+  kicker: string;
   title: string;
   body: string;
 }) {
@@ -44,10 +70,16 @@ function Card({
     <li>
       <Link
         href={href}
-        className="block rounded-[var(--radius-lg)] border border-line bg-panel px-5 py-4 hover:border-accent"
+        className="panel-quiet group flex h-full flex-col justify-between gap-4 px-5 py-4 transition-colors hover:border-line-strong"
       >
-        <p className="font-bold text-accent-strong">{title}</p>
-        <p className="mt-1 text-sm text-text/80">{body}</p>
+        <div>
+          <p className="kicker">{kicker}</p>
+          <p className="headline-upright mt-1 text-lg text-accent-deep">
+            {title}
+          </p>
+          <p className="mt-1 text-sm text-muted">{body}</p>
+        </div>
+        <span className="btn-link self-start text-sm">Open &rarr;</span>
       </Link>
     </li>
   );

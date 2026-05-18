@@ -41,32 +41,30 @@ export function PromptPayDisplay({
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-[var(--color-danger-soft-fg)] bg-[var(--color-danger-soft-bg)] px-4 py-3 text-sm text-[var(--color-danger-soft-fg)]">
+      <div className="rounded-[var(--radius-lg)] border border-[var(--color-danger-soft-fg)] bg-[var(--color-danger-soft-bg)] px-4 py-3 text-sm text-[var(--color-danger-soft-fg)]">
         {error}
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-line bg-white p-4 text-center">
-      <p className="text-xs font-bold uppercase tracking-wider text-muted">
-        PromptPay
-      </p>
+    <div className="panel-quiet relative p-4 text-center border-gold-soft bg-gold-soft/25">
+      <p className="kicker">PromptPay</p>
       {amountSatang !== undefined && amountSatang > 0 && (
-        <p className="num mt-1 text-2xl font-black text-accent-strong">
+        <p className="mono num mt-1 text-2xl font-semibold text-accent-deep">
           {formatTHB(amountSatang)} THB
         </p>
       )}
       <div className="mt-3 grid place-items-center">
         {svg ? (
           <div
-            className="grid place-items-center"
+            className="grid place-items-center rounded-[var(--radius-md)] bg-panel-strong p-3"
             dangerouslySetInnerHTML={{ __html: svg }}
             aria-label={`PromptPay QR code${amountSatang ? ` for ${formatTHB(amountSatang)} THB` : ""}`}
             role="img"
           />
         ) : (
-          <div className="grid h-[220px] w-[220px] place-items-center rounded-xl bg-soft text-xs text-muted">
+          <div className="grid h-[220px] w-[220px] place-items-center rounded-[var(--radius-md)] bg-soft text-xs text-muted">
             Generating…
           </div>
         )}

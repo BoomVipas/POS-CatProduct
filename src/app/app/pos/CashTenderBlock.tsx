@@ -25,10 +25,8 @@ export function CashTenderBlock({ totalSatang }: { totalSatang: number }) {
   const short = tendered > 0 && tendered < totalSatang;
 
   return (
-    <div className="rounded-2xl border border-line bg-panel-strong p-4">
-      <p className="text-xs font-bold uppercase tracking-wider text-muted">
-        {t.pos.amountTendered}
-      </p>
+    <div className="panel-quiet p-4">
+      <p className="kicker">{t.pos.amountTendered}</p>
 
       <div className="mt-3 flex flex-wrap gap-2">
         {PRESETS_BAHT.map((p) => (
@@ -38,8 +36,8 @@ export function CashTenderBlock({ totalSatang }: { totalSatang: number }) {
             onClick={() => setTendered(p * 100)}
             className={
               tendered === p * 100
-                ? "rounded-full bg-gradient-to-b from-[#a9763f] to-[#7e552a] px-3 py-1.5 text-xs font-extrabold text-white"
-                : "rounded-full border border-line bg-panel px-3 py-1.5 text-xs font-extrabold text-accent-strong hover:bg-soft"
+                ? "btn-accent btn-sm mono num"
+                : "btn-ghost btn-sm mono num"
             }
           >
             {p}
@@ -50,8 +48,8 @@ export function CashTenderBlock({ totalSatang }: { totalSatang: number }) {
           onClick={() => setTendered(totalSatang)}
           className={
             tendered === totalSatang && totalSatang > 0
-              ? "rounded-full bg-gradient-to-b from-[#a9763f] to-[#7e552a] px-3 py-1.5 text-xs font-extrabold text-white"
-              : "rounded-full border border-line bg-panel px-3 py-1.5 text-xs font-extrabold text-accent-strong hover:bg-soft"
+              ? "btn-accent btn-sm"
+              : "btn-ghost btn-sm"
           }
         >
           {t.pos.exact}
@@ -69,13 +67,13 @@ export function CashTenderBlock({ totalSatang }: { totalSatang: number }) {
               setTendered(Math.max(0, Math.round(n * 100)));
           }}
           placeholder="custom"
-          className="num w-24 rounded-md border border-line bg-white px-2 py-1.5 text-right text-sm font-extrabold focus:border-accent focus:outline-none"
+          className="field mono num w-24 py-1.5 text-right"
         />
       </div>
 
       {tendered > 0 && (
         <div
-          className={`mt-3 flex items-baseline justify-between rounded-xl px-3 py-2 ${
+          className={`mt-3 flex items-baseline justify-between rounded-[var(--radius-md)] px-3 py-2 ${
             short
               ? "bg-[var(--color-warn-soft-bg)] text-[var(--color-warn-soft-fg)]"
               : change > 0
@@ -83,10 +81,8 @@ export function CashTenderBlock({ totalSatang }: { totalSatang: number }) {
                 : "bg-soft text-muted"
           }`}
         >
-          <span className="text-xs font-extrabold uppercase tracking-wider">
-            {t.pos.changeDue}
-          </span>
-          <span className="num text-lg font-black">
+          <span className="kicker">{t.pos.changeDue}</span>
+          <span className="mono num text-xl font-semibold">
             {short
               ? `−${formatTHB(totalSatang - tendered)}`
               : formatTHB(change)}{" "}

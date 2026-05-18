@@ -53,15 +53,15 @@ export function SplitPaymentBlock({ totalSatang }: { totalSatang: number }) {
   }
 
   return (
-    <div className="rounded-2xl border border-line bg-panel-strong p-4">
+    <div className="panel-quiet p-4">
       <div className="flex items-baseline justify-between gap-2">
-        <p className="text-xs font-bold uppercase tracking-wider text-muted">
+        <p className="kicker">
           {t.pos.splitPayment} · {t.pos.splitsCount(cart.splits.length)}
         </p>
         <button
           type="button"
           onClick={() => dispatch({ type: "CLEAR_SPLITS" })}
-          className="text-[11px] font-bold text-muted hover:text-text"
+          className="btn-link text-[11px]"
         >
           {t.pos.singlePayment} →
         </button>
@@ -69,7 +69,10 @@ export function SplitPaymentBlock({ totalSatang }: { totalSatang: number }) {
 
       <ul className="mt-3 grid gap-2">
         {cart.splits.map((s, i) => (
-          <li key={i} className="grid gap-2 rounded-xl border border-line bg-panel p-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,140px)_auto] sm:items-center">
+          <li
+            key={i}
+            className="grid gap-2 rounded-[var(--radius-md)] border border-line bg-panel p-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,140px)_auto] sm:items-center"
+          >
             <div className="flex flex-wrap gap-1">
               {METHODS.map((m) => (
                 <button
@@ -84,8 +87,8 @@ export function SplitPaymentBlock({ totalSatang }: { totalSatang: number }) {
                   }
                   className={
                     s.method === m
-                      ? "rounded-full bg-gradient-to-b from-[#a9763f] to-[#7e552a] px-2.5 py-1 text-[11px] font-extrabold text-white"
-                      : "rounded-full border border-line bg-panel px-2.5 py-1 text-[11px] font-extrabold text-accent-strong hover:bg-soft"
+                      ? "btn-accent btn-sm"
+                      : "btn-ghost btn-sm"
                   }
                 >
                   {labels[m]}
@@ -111,7 +114,7 @@ export function SplitPaymentBlock({ totalSatang }: { totalSatang: number }) {
                 });
               }}
               placeholder="amount"
-              className="num w-full rounded-md border border-line bg-white px-2 py-1.5 text-right text-sm font-extrabold focus:border-accent focus:outline-none"
+              className="field mono num w-full py-1.5 text-right"
             />
             <button
               type="button"
@@ -119,7 +122,7 @@ export function SplitPaymentBlock({ totalSatang }: { totalSatang: number }) {
                 dispatch({ type: "REMOVE_SPLIT", index: i })
               }
               aria-label="Remove split"
-              className="ml-auto grid h-7 w-7 place-items-center rounded-full bg-[#f6edde] text-muted hover:text-text"
+              className="ml-auto grid h-7 w-7 place-items-center rounded-full bg-soft text-muted hover:text-text"
             >
               <Trash2 size={14} />
             </button>
@@ -131,18 +134,18 @@ export function SplitPaymentBlock({ totalSatang }: { totalSatang: number }) {
         <button
           type="button"
           onClick={addSplit}
-          className="rounded-[var(--radius-md)] border border-line bg-panel px-3 py-1.5 text-xs font-extrabold text-accent-strong hover:bg-soft"
+          className="btn-ghost btn-sm"
         >
           {t.pos.addSplit}
         </button>
         <div
-          className={`rounded-full px-3 py-1.5 text-xs font-extrabold ${
+          className={
             validation.ok
-              ? "bg-[var(--color-ok-soft-bg)] text-[var(--color-ok-soft-fg)]"
+              ? "chip chip-ok mono"
               : validation.reason === "over"
-                ? "bg-[var(--color-danger-soft-bg)] text-[var(--color-danger-soft-fg)]"
-                : "bg-[var(--color-warn-soft-bg)] text-[var(--color-warn-soft-fg)]"
-          }`}
+                ? "chip chip-danger mono"
+                : "chip chip-warn mono"
+          }
         >
           {validation.ok ? (
             <>✓ {formatTHB(total)} / {formatTHB(totalSatang)}</>

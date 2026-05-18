@@ -3,41 +3,57 @@ import { getDict } from "@/lib/i18n/server";
 
 export default async function AppHomePage() {
   const { t } = await getDict();
+  const today = new Date().toLocaleDateString(undefined, {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
-    <main className="mx-auto max-w-3xl px-5 py-12">
-      <h1 className="font-display text-4xl text-accent-strong">
-        {t.appHome.title}
-      </h1>
-      <p className="mt-3 text-text/85">{t.appHome.subtitle}</p>
-      <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+    <main className="mx-auto max-w-6xl px-5 py-10 sm:py-12">
+      <header className="flex flex-col gap-2 border-b border-line pb-6">
+        <span className="kicker">{t.chrome.appHome}</span>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h1 className="headline-upright text-3xl text-accent-strong sm:text-4xl">
+            {t.appHome.title}
+          </h1>
+          <p className="text-muted mono text-sm tabular">{today}</p>
+        </div>
+        <p className="text-muted max-w-[62ch] text-sm">
+          {t.appHome.subtitle}
+        </p>
+      </header>
+
+      <ul className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         <Tile
           href="/app/pos"
-          title={t.appHome.tilePosTitle}
+          title={t.chrome.pos}
           body={t.appHome.tilePosBody}
         />
         <Tile
           href="/app/setup/products"
-          title={t.appHome.tileProductsTitle}
+          title={t.chrome.products}
           body={t.appHome.tileProductsBody}
         />
         <Tile
           href="/app/dashboard"
-          title={t.appHome.tileDashboardTitle}
+          title={t.chrome.dashboard}
           body={t.appHome.tileDashboardBody}
         />
         <Tile
           href="/app/send-later"
-          title={t.appHome.tileSendLaterTitle}
+          title={t.chrome.sendLater}
           body={t.appHome.tileSendLaterBody}
         />
         <Tile
           href="/app/correction"
-          title={t.appHome.tileCorrectionsTitle}
+          title={t.chrome.corrections}
           body={t.appHome.tileCorrectionsBody}
         />
         <Tile
           href="/app/audit-log"
-          title={t.appHome.tileAuditLogTitle}
+          title={t.chrome.auditLog}
           body={t.appHome.tileAuditLogBody}
         />
         <Tile
@@ -67,7 +83,7 @@ export default async function AppHomePage() {
         />
         <Tile
           href="/app/settings"
-          title={t.appHome.tileSettingsTitle}
+          title={t.chrome.settings}
           body={t.appHome.tileSettingsBody}
         />
       </ul>
@@ -88,10 +104,13 @@ function Tile({
     <li>
       <Link
         href={href}
-        className="block rounded-[var(--radius-lg)] border border-line bg-panel px-5 py-4 hover:border-accent"
+        className="panel-quiet group block h-full border-l-2 border-gold px-5 py-4 transition-transform duration-150 ease-out hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]"
       >
-        <p className="font-display text-xl text-accent-strong">{title}</p>
-        <p className="mt-1 text-sm text-text/80">{body}</p>
+        <p className="headline-upright text-xl text-accent-strong">{title}</p>
+        <p className="text-text-soft mt-1 text-sm leading-relaxed">{body}</p>
+        <span className="btn-link mt-3 inline-block text-sm">
+          Open →
+        </span>
       </Link>
     </li>
   );

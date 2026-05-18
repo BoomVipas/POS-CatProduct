@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { useDemoSettings } from "@/lib/demo/useDemoSettings";
 import { useDemoAudit } from "@/lib/demo/useDemoAudit";
 import { isValidPhoneTH, normalizePhoneTH } from "@/lib/phone";
-import { TextInput } from "@/components/ui/TextInput";
-import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
 
 export function SettingsForm() {
@@ -24,6 +22,9 @@ export function SettingsForm() {
     setPhone(settings.promptpayPhone);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready]);
+
+  const dirty =
+    brand !== settings.brandDisplayName || phone !== settings.promptpayPhone;
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -55,40 +56,100 @@ export function SettingsForm() {
     });
   }
 
+  function onReset() {
+    setBrand(settings.brandDisplayName);
+    setPhone(settings.promptpayPhone);
+    setPhoneError(null);
+  }
+
   return (
-    <form onSubmit={onSubmit} className="grid gap-4">
-      <TextInput
-        label="Brand display name"
-        value={brand}
-        onChange={(e) => setBrand(e.currentTarget.value)}
-        hint="Shown in the top bar."
-        autoComplete="organization"
-        maxLength={120}
-      />
-      <TextInput
-        label="PromptPay phone"
-        value={phone}
-        onChange={(e) => setPhone(e.currentTarget.value)}
-        error={phoneError ?? undefined}
-        hint="The QR generated at checkout uses this number."
-        placeholder="08x-xxx-xxxx"
-        autoComplete="tel"
-        inputMode="tel"
-        maxLength={20}
-      />
-      <div className="mt-2 flex gap-3">
-        <Button type="submit">Save</Button>
-        <Button
+    <form onSubmit={onSubmit} className="grid gap-6">
+      <div className="flex items-center justify-end">
+        {dirty ? (
+          <span className="chip chip-warn">Unsaved changes</span>
+        ) : (
+          <span className="chip chip-ok">Saved</span>
+        )}
+      </div>
+
+      <section className="panel-quiet p-6">
+        <p className="kicker">Brand</p>
+        <h2 className="headline-upright mt-1 text-xl text-accent-deep">
+          Storefront identity
+        </h2>
+        <p className="mt-1 max-w-[62ch] text-sm text-text-soft">
+          Shown in the top bar across every operator screen and on receipts.
+        </p>
+
+        <div className="mt-5 grid gap-1.5">
+          <label htmlFor="brand-name" className="field-label">
+            Brand display name
+          </label>
+          <input
+            id="brand-name"
+            type="text"
+            className="field"
+            value={brand}
+            onChange={(e) => setBrand(e.currentTarget.value)}
+            autoComplete="organization"
+            maxLength={120}
+          />
+          <span className="text-xs text-muted">Shown in the top bar.</span>
+        </div>
+      </section>
+
+      <section className="panel-quiet p-6">
+        <p className="kicker">Payment</p>
+        <h2 className="headline-upright mt-1 text-xl text-accent-deep">
+          PromptPay
+        </h2>
+        <p className="mt-1 max-w-[62ch] text-sm text-text-soft">
+          The QR code generated at checkout uses this PromptPay-registered
+          phone number.
+        </p>
+
+        <div className="mt-5 grid gap-1.5">
+          <label htmlFor="promptpay-phone" className="field-label">
+            PromptPay phone
+          </label>
+          <input
+            id="promptpay-phone"
+            type="text"
+            className="field mono"
+            value={phone}
+            onChange={(e) => setPhone(e.currentTarget.value)}
+            placeholder="08x-xxx-xxxx"
+            autoComplete="tel"
+            inputMode="tel"
+            maxLength={20}
+            aria-invalid={phoneError ? true : undefined}
+            aria-describedby="promptpay-msg"
+          />
+          <span
+            id="promptpay-msg"
+            className={
+              phoneError
+                ? "text-xs text-[var(--color-danger-soft-fg)]"
+                : "text-xs text-muted"
+            }
+          >
+            {phoneError ?? "The QR generated at checkout uses this number."}
+          </span>
+        </div>
+      </section>
+
+      <div className="flex items-center justify-end gap-3 pt-2">
+        <button
           type="button"
-          variant="ghost"
-          onClick={() => {
-            setBrand(settings.brandDisplayName);
-            setPhone(settings.promptpayPhone);
-            setPhoneError(null);
-          }}
+          className="btn-ghost btn-sm"
+          onClick={onReset}
+          disabled={!dirty}
         >
           Reset
-        </Button>
+        </button>
+        <button type="submit" className="btn-accent btn-md">
+          Save changes
+        </button>
       </div>
     </form>
   );

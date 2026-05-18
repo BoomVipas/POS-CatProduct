@@ -100,46 +100,56 @@ export function CustomerView() {
 
   if (!ready) {
     return (
-      <main className="mx-auto max-w-md px-4 py-8 text-center text-sm text-muted">
-        {t.common.loading}
-      </main>
+      <div className="mx-auto max-w-md px-4 py-16 text-center">
+        <p className="kicker">{t.common.loading}</p>
+      </div>
     );
   }
 
   if (catalog.length === 0) {
     return (
-      <main className="mx-auto max-w-md px-4 py-12 text-center">
-        <h1 className="font-display text-2xl text-accent-strong">
+      <div className="mx-auto max-w-md px-4 py-16 text-center">
+        <p className="kicker kicker-gold justify-center">{t.qrMenu.title}</p>
+        <h1 className="headline letterpress mt-4 text-4xl text-accent-deep">
           {t.qrMenu.noCatalogTitle}
         </h1>
-        <p className="mt-2 text-sm text-muted">{t.qrMenu.noCatalogBody}</p>
-      </main>
+        <div className="fleuron mt-6">
+          <span>※</span>
+        </div>
+        <p className="mt-4 text-sm text-muted">{t.qrMenu.noCatalogBody}</p>
+      </div>
     );
   }
 
   if (submitted) {
     return (
-      <main className="mx-auto max-w-md px-4 py-10">
-        <div className="panel p-6 text-center">
-          <p className="text-xs font-bold uppercase tracking-wider text-muted">
-            {t.qrMenu.claimReady}
-          </p>
-          <p className="mt-2 font-display text-5xl tracking-[0.3em] text-accent-strong">
+      <div className="mx-auto max-w-md px-4 py-12">
+        <div className="panel-lift relative p-8 text-center">
+          <span className="panel-tag">{t.qrMenu.claimReady}</span>
+          <p
+            className="mono num mt-4 text-5xl font-bold tracking-[0.3em] text-accent-deep"
+          >
             {submitted.code}
           </p>
-          <p className="mt-3 text-sm text-text/85">
+          <div className="fleuron mt-5">
+            <span>※</span>
+          </div>
+          <p className="mt-4 text-sm text-text-soft">
             {t.qrMenu.showAtBooth(submitted.customerName)}
           </p>
-          <p className="num mt-1 text-xs text-muted">
-            {t.pos.total}: {formatTHB(submitted.totalSatang)} THB
+          <p className="kicker mt-4">
+            {t.pos.total}{" "}
+            <span className="mono num ml-1 text-accent-strong">
+              {formatTHB(submitted.totalSatang)} THB
+            </span>
           </p>
-          <div className="mt-5 flex flex-wrap justify-center gap-2">
+          <div className="mt-6 flex justify-center">
             <Button onClick={() => setSubmitted(null)}>
               {t.qrMenu.startOver}
             </Button>
           </div>
         </div>
-      </main>
+      </div>
     );
   }
 
@@ -153,81 +163,120 @@ export function CustomerView() {
     });
 
   return (
-    <main className="mx-auto max-w-md px-4 py-6 pb-32">
-      <h1 className="font-display text-2xl text-accent-strong">
-        {t.qrMenu.title}
-      </h1>
-      <p className="mt-1 text-sm text-muted">{t.qrMenu.body}</p>
+    <div className="mx-auto max-w-5xl px-4 py-8 pb-36 md:py-12">
+      <header className="rise rise-1 max-w-2xl">
+        <p className="kicker kicker-gold">{t.qrMenu.title}</p>
+        <h1 className="headline letterpress mt-4 text-4xl text-accent-deep md:text-5xl">
+          <span className="underline-grow">{t.qrMenu.title}</span>
+        </h1>
+        <p className="mt-4 max-w-[62ch] text-sm text-text-soft md:text-base">
+          {t.qrMenu.body}
+        </p>
+        <div className="fleuron mt-6">
+          <span>※</span>
+        </div>
+      </header>
 
-      <ul className="mt-5 grid gap-2">
-        {activeCatalog.map((p) => {
-          const line = lines.find((l) => l.productId === p.id);
-          const qty = line?.qty ?? 0;
-          const remaining = Math.max(0, p.current_qty - qty);
-          const soldout = remaining <= 0 && qty === 0;
-          return (
-            <li
-              key={p.id}
-              className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-panel px-3 py-2"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-bold text-muted">{p.sku}</p>
-                <p className="line-clamp-2 text-sm font-extrabold text-text">
-                  {p.name}
-                </p>
-                <p className="num text-xs text-muted">
-                  {formatTHB(p.price_satang)} THB
-                  {soldout && ` · ${t.pos.soldOut}`}
-                </p>
-              </div>
-              {qty > 0 ? (
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => adjustQty(p.id, -1)}
-                    aria-label="Decrease"
-                    className="grid h-8 w-8 place-items-center rounded-full bg-[var(--color-danger-soft-bg)] text-[var(--color-danger-soft-fg)]"
-                  >
-                    <Minus size={14} />
-                  </button>
-                  <span className="num min-w-[1.5rem] text-center text-sm font-black">
-                    {qty}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => adjustQty(p.id, 1)}
-                    aria-label="Increase"
-                    disabled={remaining === 0}
-                    className="grid h-8 w-8 place-items-center rounded-full bg-[var(--color-ok-soft-bg)] text-[var(--color-ok-soft-fg)] disabled:opacity-50"
-                  >
-                    <Plus size={14} />
-                  </button>
+      <section className="rise rise-2 panel mt-8 p-4 md:p-6">
+        <ul className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          {activeCatalog.map((p) => {
+            const line = lines.find((l) => l.productId === p.id);
+            const qty = line?.qty ?? 0;
+            const remaining = Math.max(0, p.current_qty - qty);
+            const soldout = remaining <= 0 && qty === 0;
+            const lowStock = !soldout && p.current_qty > 0 && p.current_qty <= 3;
+            return (
+              <li
+                key={p.id}
+                className="panel-quiet flex flex-col gap-3 p-4"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <p className="kicker mono num text-[0.65rem] tracking-[0.18em]">
+                    {p.sku}
+                  </p>
+                  <div className="flex flex-wrap items-center justify-end gap-1.5">
+                    {p.pinned && (
+                      <span className="chip chip-gold">Featured</span>
+                    )}
+                    {lowStock && (
+                      <span className="chip chip-warn">
+                        {/* TODO: i18n key for low stock */}
+                        Low stock
+                      </span>
+                    )}
+                    {soldout && (
+                      <span className="chip chip-neutral">
+                        {t.pos.soldOut}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              ) : (
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => addLine(p)}
-                  disabled={soldout}
-                >
-                  +
-                </Button>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+                <div className="min-w-0 flex-1">
+                  <h3 className="headline-upright line-clamp-2 text-lg text-text">
+                    {p.name}
+                  </h3>
+                  <p className="mono num mt-2 text-base text-accent-strong">
+                    {formatTHB(p.price_satang)}
+                    <span className="ml-1 text-xs text-muted">THB</span>
+                  </p>
+                </div>
+                <div className="flex items-center justify-end pt-1">
+                  {qty > 0 ? (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => adjustQty(p.id, -1)}
+                        aria-label="Decrease"
+                        className="grid h-9 w-9 place-items-center rounded-full border border-line bg-panel text-accent-strong transition-colors hover:border-line-strong"
+                      >
+                        <Minus size={14} />
+                      </button>
+                      <span className="mono num min-w-[1.75rem] text-center text-base font-bold text-text">
+                        {qty}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => adjustQty(p.id, 1)}
+                        aria-label="Increase"
+                        disabled={remaining === 0}
+                        className="grid h-9 w-9 place-items-center rounded-full border border-line bg-panel text-accent-strong transition-colors hover:border-line-strong disabled:opacity-50"
+                      >
+                        <Plus size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => addLine(p)}
+                      disabled={soldout}
+                    >
+                      <Plus size={14} />
+                    </Button>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      <div className="mt-10 flex justify-center">
+        <a href="/apply" className="btn-link text-xs">
+          {/* TODO: i18n key for seller apply CTA */}
+          Sell at your own booth →
+        </a>
+      </div>
 
       {lines.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 border-t border-line bg-panel/95 backdrop-blur">
-          <div className="mx-auto flex max-w-md items-center gap-3 px-4 py-3">
-            <ShoppingCart size={18} className="text-accent-strong" />
+        <div className="fixed inset-x-0 bottom-0 border-t border-line-strong bg-panel-strong/95 backdrop-blur">
+          <div className="mx-auto flex max-w-5xl items-center gap-4 px-4 py-3">
+            <ShoppingCart size={20} className="text-accent-strong" />
             <div className="flex-1">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted">
-                {t.pos.total}
-              </p>
-              <p className="num text-lg font-black text-accent-strong">
-                {formatTHB(subtotal)} THB
+              <p className="kicker">{t.pos.total}</p>
+              <p className="mono num text-lg font-bold text-accent-deep">
+                {formatTHB(subtotal)}{" "}
+                <span className="text-xs text-muted">THB</span>
               </p>
             </div>
             <Button onClick={() => setShowSubmit(true)}>
@@ -243,8 +292,8 @@ export function CustomerView() {
         title={t.qrMenu.submitTitle}
         size="sm"
       >
-        <p className="text-sm text-text/85">{t.qrMenu.submitBody}</p>
-        <div className="mt-3">
+        <p className="text-sm text-text-soft">{t.qrMenu.submitBody}</p>
+        <div className="mt-4">
           <TextInput
             label={t.qrMenu.fName}
             value={name}
@@ -253,7 +302,7 @@ export function CustomerView() {
             placeholder={t.qrMenu.fNamePlaceholder}
           />
         </div>
-        <div className="mt-4 flex justify-end gap-2">
+        <div className="mt-5 flex justify-end gap-2">
           <Button variant="ghost" onClick={() => setShowSubmit(false)}>
             {t.common.cancel}
           </Button>
@@ -262,6 +311,6 @@ export function CustomerView() {
           </Button>
         </div>
       </Modal>
-    </main>
+    </div>
   );
 }

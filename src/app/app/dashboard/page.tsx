@@ -10,16 +10,19 @@ import { HourBars } from "./HourBars";
 export default function DashboardPage() {
   const m = mockToday;
   return (
-    <main className="mx-auto max-w-6xl px-5 py-8">
-      <div className="flex items-baseline justify-between gap-3">
-        <h1 className="font-display text-3xl text-accent-strong">Dashboard</h1>
-        <p className="text-xs font-bold uppercase tracking-wider text-muted">
-          Demo · today
-        </p>
-      </div>
-      <p className="mt-1 text-sm text-muted">
-        Wires to live data at DD-85..94. Numbers below are illustrative.
-      </p>
+    <main className="mx-auto max-w-[96rem] px-5 py-8">
+      <header className="flex flex-wrap items-end justify-between gap-4 border-b border-line-soft pb-5">
+        <div>
+          <p className="kicker">Dashboard</p>
+          <h1 className="headline-upright mt-1 text-3xl text-accent-deep">
+            Today at the booth
+          </h1>
+          <p className="mt-1 text-sm text-muted">
+            Wires to live data at DD-85..94. Numbers below are illustrative.
+          </p>
+        </div>
+        <span className="chip chip-neutral">Demo · today</span>
+      </header>
 
       <div className="mt-6 grid gap-4">
         <PaceStrip
@@ -45,7 +48,7 @@ export default function DashboardPage() {
 
       <Link
         href="/app"
-        className="mt-8 inline-block text-sm font-bold text-accent-strong"
+        className="btn-link mt-8 inline-block text-sm"
       >
         ← App home
       </Link>

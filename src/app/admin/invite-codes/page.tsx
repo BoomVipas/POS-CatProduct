@@ -1,14 +1,19 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Database, InviteCodeStatus } from "@/lib/database.types";
-import { Pill, type PillTone } from "@/components/ui/Pill";
 import { formatDateTimeTH } from "@/lib/date";
 
 type Row = Database["public"]["Tables"]["invite_codes"]["Row"];
 
 const STATUSES: InviteCodeStatus[] = ["active", "used", "expired", "cancelled"];
 
-const toneFor = (s: InviteCodeStatus): PillTone =>
-  s === "active" ? "ok" : s === "used" ? "neutral" : s === "expired" ? "warn" : "danger";
+const chipFor = (s: InviteCodeStatus): string =>
+  s === "active"
+    ? "chip chip-warn"
+    : s === "used"
+      ? "chip chip-ok"
+      : s === "cancelled"
+        ? "chip chip-danger"
+        : "chip chip-info";
 
 const MOCK: Row[] = [
   {
@@ -72,60 +77,133 @@ export default async function InviteCodesPage({
   }
 
   return (
-    <div>
-      <h1 className="font-display text-3xl text-accent-strong">Invite codes</h1>
-      {isMock && (
-        <p className="mt-1 text-xs font-bold uppercase tracking-wider text-[var(--color-warn-soft-fg)]">
-          Demo mode — connect Supabase to load real codes
-        </p>
-      )}
-      <div className="mt-4 flex flex-wrap gap-2">
-        {STATUSES.map((s) => (
-          <a
-            key={s}
-            href={`/admin/invite-codes?status=${s}`}
-            className={
-              s === filter
-                ? "rounded-full border border-accent-strong bg-accent px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white"
-                : "rounded-full border border-line bg-panel px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-strong"
-            }
-          >
-            {s}
-          </a>
-        ))}
-      </div>
+    <div className="mx-auto w-full max-w-[96rem]">
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="kicker kicker-gold">Invite codes</p>
+          <h1 className="headline-upright mt-2 text-2xl text-accent-deep">
+            Invite codes
+          </h1>
+          {isMock && (
+            <p className="mt-2 text-[0.7rem] font-bold uppercase tracking-[0.18em] text-[var(--color-warn-soft-fg)]">
+              Demo mode — connect Supabase to load real codes
+            </p>
+          )}
+        </div>
+      </header>
+
+      <nav className="mt-6 flex flex-wrap gap-2" aria-label="Filter by status">
+        {STATUSES.map((s) => {
+          const active = s === filter;
+          return (
+            <a
+              key={s}
+              href={`/admin/invite-codes?status=${s}`}
+              className={
+                active
+                  ? "chip chip-gold"
+                  : "chip chip-neutral hover:border-[var(--color-line-strong)]"
+              }
+            >
+              {s}
+            </a>
+          );
+        })}
+      </nav>
 
       {errorMsg && (
-        <p className="mt-6 rounded-[var(--radius-md)] border border-[var(--color-danger-soft-fg)] bg-[var(--color-danger-soft-bg)] px-4 py-3 text-sm text-[var(--color-danger-soft-fg)]">
+        <p
+          className="mt-6 rounded-[var(--radius-md)] border px-4 py-3 text-sm"
+          style={{
+            borderColor: "var(--color-danger-soft-fg)",
+            background: "var(--color-danger-soft-bg)",
+            color: "var(--color-danger-soft-fg)",
+          }}
+        >
           {errorMsg}
         </p>
       )}
 
-      <ul className="mt-6 grid gap-3">
-        {rows.map((row) => (
-          <li
-            key={row.id}
-            className="rounded-[var(--radius-lg)] border border-line bg-panel px-5 py-4"
-          >
-            <div className="flex flex-wrap items-baseline justify-between gap-3">
-              <p className="font-display text-lg text-accent-strong">
-                {row.brand_name}
-              </p>
-              <Pill tone={toneFor(row.status)}>{row.status}</Pill>
-            </div>
-            <p className="num mt-1 text-sm font-extrabold tracking-wide text-text">
-              {row.code}
+      <section className="panel-quiet mt-6 overflow-hidden">
+        {rows.length === 0 && !errorMsg ? (
+          <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+            <p className="kicker kicker-gold">Invite codes</p>
+            <p
+              className="font-display text-2xl italic text-accent-strong"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              No invite codes yet
             </p>
-            <p className="mt-1 text-xs text-muted">
-              {row.email} · created {formatDateTimeTH(row.created_at)} · expires {formatDateTimeTH(row.expires_at)}
-              {row.used_at && ` · used ${formatDateTimeTH(row.used_at)}`}
+            <p className="max-w-[42ch] text-sm text-muted">
+              Nothing under &ldquo;{filter}&rdquo;. Generate a batch to invite
+              the next round of booth sellers.
             </p>
-          </li>
-        ))}
-        {!errorMsg && rows.length === 0 && (
-          <li className="text-sm text-muted">No invite codes with status &ldquo;{filter}&rdquo;.</li>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="tbl">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Created</th>
+                  <th>Expires</th>
+                  <th>Redeemer</th>
+                  <th>Status</th>
+                  <th className="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => {
+                  const redeemer =
+                    row.email ?? row.brand_name ?? null;
+                  return (
+                    <tr key={row.id}>
+                      <td>
+                        <div className="flex items-center gap-2">
+                          <span className="mono text-base font-bold tracking-tight text-accent-deep">
+                            {row.code}
+                          </span>
+                        </div>
+                        {row.brand_name && (
+                          <p className="mt-1 text-xs text-muted">
+                            {row.brand_name}
+                          </p>
+                        )}
+                      </td>
+                      <td className="mono text-sm text-text-soft">
+                        {formatDateTimeTH(row.created_at)}
+                      </td>
+                      <td className="mono text-sm text-text-soft">
+                        {formatDateTimeTH(row.expires_at)}
+                      </td>
+                      <td className="text-sm text-text-soft">
+                        {row.used_at && redeemer ? (
+                          <span>{redeemer}</span>
+                        ) : (
+                          <span className="text-faint">—</span>
+                        )}
+                        {row.used_at && (
+                          <p className="mono mt-1 text-xs text-muted">
+                            {formatDateTimeTH(row.used_at)}
+                          </p>
+                        )}
+                      </td>
+                      <td>
+                        <span className={chipFor(row.status)}>
+                          {row.status}
+                        </span>
+                      </td>
+                      <td className="text-right">
+                        <span className="text-xs text-faint">—</span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
-      </ul>
+      </section>
     </div>
   );
 }

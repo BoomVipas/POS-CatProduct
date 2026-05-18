@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
 import { useDemoCatalog } from "@/lib/demo/useDemoCatalog";
 import { useDemoSales } from "@/lib/demo/useDemoSales";
@@ -59,26 +58,42 @@ export function DangerZone() {
   }
 
   return (
-    <div className="mt-8 rounded-[var(--radius-lg)] border border-[var(--color-danger-soft-fg)]/30 bg-[var(--color-danger-soft-bg)]/40 p-5">
-      <h2 className="font-display text-lg text-[var(--color-danger-soft-fg)]">
-        Danger zone
+    <section className="panel-lift border-l-2 border-[var(--color-danger)] p-6">
+      <p className="kicker text-[var(--color-danger-soft-fg)]">Danger zone</p>
+      <h2 className="headline-upright mt-1 text-xl text-[var(--color-danger-soft-fg)]">
+        Irreversible actions
       </h2>
-      <p className="mt-1 text-sm text-text/85">
-        Wipe everything stored in this browser: {items.length} product
-        {items.length === 1 ? "" : "s"}, {orders.length} recorded sale
-        {orders.length === 1 ? "" : "s"}, {entries.length} audit entr
-        {entries.length === 1 ? "y" : "ies"}, and your settings. Real Supabase
-        data is unaffected (and not stored in this browser anyway).
+      <p className="mt-2 max-w-[62ch] text-sm text-text-soft">
+        These actions cannot be undone. Real Supabase data is unaffected (and
+        not stored in this browser anyway).
       </p>
-      <Button
-        type="button"
-        variant="danger"
-        size="sm"
-        className="mt-3"
-        onClick={clearAll}
-      >
-        Reset all demo data
-      </Button>
-    </div>
+
+      <div className="mt-5 border-t border-line-soft">
+        <div className="flex flex-wrap items-center justify-between gap-4 py-4">
+          <div className="max-w-[42ch]">
+            <p className="text-sm font-semibold text-text">
+              Reset all demo data
+            </p>
+            <p className="mt-0.5 text-xs text-muted">
+              Wipes{" "}
+              <span className="mono num text-text-soft">{items.length}</span>{" "}
+              product{items.length === 1 ? "" : "s"},{" "}
+              <span className="mono num text-text-soft">{orders.length}</span>{" "}
+              recorded sale{orders.length === 1 ? "" : "s"},{" "}
+              <span className="mono num text-text-soft">{entries.length}</span>{" "}
+              audit entr{entries.length === 1 ? "y" : "ies"}, and your settings
+              from this browser.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="btn-ghost btn-sm text-[var(--color-danger-soft-fg)]"
+            onClick={clearAll}
+          >
+            Reset all demo data
+          </button>
+        </div>
+      </div>
+    </section>
   );
 }

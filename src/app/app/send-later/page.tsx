@@ -3,25 +3,38 @@ import { SendLaterList } from "./SendLaterList";
 
 export default function SendLaterPage() {
   return (
-    <main className="mx-auto max-w-4xl px-5 py-10">
-      <h1 className="font-display text-3xl text-accent-strong">Send-later</h1>
-      <p className="mt-2 text-text/85">
-        Pending fulfillments and shipping status. Status flow:{" "}
-        <strong>pending → packed → shipped → completed</strong>.
-      </p>
-      <p className="mt-1 text-xs text-muted">
-        Demo mode: reads from localStorage. DD-75..84 will move this to the
-        Supabase <code>send_later_orders</code> table.
-      </p>
+    <main className="mx-auto max-w-[96rem] px-6 py-10">
+      <header className="flex flex-wrap items-end justify-between gap-6 border-b border-line pb-6">
+        <div>
+          <p className="kicker kicker-gold">Send later</p>
+          <h1 className="headline-upright mt-3 text-3xl text-accent-deep">
+            Send-later ledger
+          </h1>
+          <p className="mt-3 max-w-[62ch] text-sm text-text-soft">
+            Pending fulfillments and shipping status. Flow:{" "}
+            <span className="mono text-accent-strong">
+              pending &rarr; packed &rarr; shipped &rarr; completed
+            </span>
+            .
+          </p>
+          <p className="mt-1 text-[11px] text-faint">
+            Demo mode reads from localStorage; DD-75..84 will move this to
+            Supabase <span className="mono">send_later_orders</span>.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link href="/app" className="btn-link text-sm">
+            App home
+          </Link>
+          <Link href="/app/pos" className="btn-accent btn-md">
+            New send-later
+          </Link>
+        </div>
+      </header>
 
-      <SendLaterList />
-
-      <Link
-        href="/app"
-        className="mt-6 inline-block text-sm font-bold text-accent-strong"
-      >
-        ← App home
-      </Link>
+      <section className="mt-8">
+        <SendLaterList />
+      </section>
     </main>
   );
 }

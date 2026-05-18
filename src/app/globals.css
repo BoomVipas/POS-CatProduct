@@ -1,107 +1,567 @@
 @import "tailwindcss";
 
 /* ============================================================
-   pos-for-sell theme (carried over from meowmeow_pos_event.html)
-   See docs/DESIGN_TOKENS.md.
-   Light mode only — booth lighting is unreliable.
+   pos-for-sell — booth-paper theme v2 (May 2026)
+   "Letterpress on warm market paper."
+
+   Visual language unchanged in spirit from meowmeow:
+   cream canvas, brown ink, gold accent, large radii, tabular nums.
+   Refinements: distinctive type pairing (Fraunces + Inter Tight +
+   JetBrains Mono), paper-grain texture, letterpress headings,
+   family-scoped density (public / app / admin).
+
+   Token names from v1 are PRESERVED so existing pages keep working
+   while we redesign one chunk at a time.
    ============================================================ */
 
 :root {
-  /* canvas */
+  /* ---- canvas ---- */
   --color-bg: #f6f0e6;
   --color-bg-grad-from: #fbf7ef;
-  --color-bg-grad-to: #f1e7d6;
+  --color-bg-grad-to: #ede1cc;
+  --color-bg-deep: #e6d8c0;
 
-  /* surfaces */
+  /* ---- surfaces ---- */
   --color-panel: #fffaf3;
   --color-panel-strong: #fffdf9;
   --color-soft: #efe5d6;
+  --color-soft-deep: #e4d6bf;
 
-  /* text */
+  /* ---- ink ---- */
   --color-text: #2b231d;
-  --color-muted: #736555;
+  --color-text-soft: #4a3f33;
+  --color-muted: #7c6c58;
+  --color-faint: #a89579;
 
-  /* accent (brand brown) */
+  /* ---- accent (brand brown) ---- */
   --color-accent: #8d6236;
   --color-accent-strong: #6e4b27;
+  --color-accent-deep: #4a3019;
   --color-gold: #c59a54;
+  --color-gold-soft: #e9d6ab;
 
-  /* line / border */
+  /* ---- line ---- */
   --color-line: #ddcfbe;
+  --color-line-soft: #ebe0cc;
+  --color-line-strong: #c5b39a;
 
-  /* status */
+  /* ---- status ---- */
   --color-danger: #b44b3f;
+  --color-danger-strong: #8b3d34;
   --color-danger-soft-bg: #f8e1de;
   --color-danger-soft-fg: #8b3d34;
   --color-warn-soft-bg: #fff2dd;
   --color-warn-soft-fg: #9a641d;
   --color-ok-soft-bg: #e4f0dc;
   --color-ok-soft-fg: #3f6d34;
+  --color-info-soft-bg: #e0e8e9;
+  --color-info-soft-fg: #2f5a5e;
 
-  /* radii */
+  /* ---- radii ---- */
+  --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
   --radius-xl: 28px;
+  --radius-2xl: 36px;
 
-  /* shadow */
+  /* ---- shadows (warm, paper-on-paper) ---- */
   --shadow-card: 0 22px 52px rgba(77, 53, 29, 0.1);
+  --shadow-lift: 0 32px 72px -16px rgba(77, 53, 29, 0.18),
+                 0 4px 8px rgba(77, 53, 29, 0.04);
+  --shadow-press: inset 0 1px 0 rgba(255, 255, 255, 0.6),
+                  inset 0 -2px 0 rgba(77, 53, 29, 0.08);
+  --shadow-stamp: 0 1px 0 rgba(255, 255, 255, 0.6),
+                  0 -1px 0 rgba(77, 53, 29, 0.1);
 
-  /* fonts */
-  --font-sans: "Aptos", "Segoe UI", Tahoma, sans-serif;
-  --font-display: Georgia, "Times New Roman", serif;
+  /* ---- fonts (wired by next/font in layout.tsx) ---- */
+  --font-sans: var(--font-inter-tight), "Inter Tight", "Inter", system-ui, sans-serif;
+  --font-display: var(--font-fraunces), "Fraunces", Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, "SF Mono", monospace;
 }
 
-/* expose tokens to Tailwind's utility classes (bg-bg, text-accent, etc.) */
+/* expose tokens to Tailwind v4 utilities */
 @theme inline {
   --color-bg: var(--color-bg);
   --color-bg-grad-from: var(--color-bg-grad-from);
   --color-bg-grad-to: var(--color-bg-grad-to);
+  --color-bg-deep: var(--color-bg-deep);
   --color-panel: var(--color-panel);
   --color-panel-strong: var(--color-panel-strong);
   --color-soft: var(--color-soft);
+  --color-soft-deep: var(--color-soft-deep);
   --color-text: var(--color-text);
+  --color-text-soft: var(--color-text-soft);
   --color-muted: var(--color-muted);
+  --color-faint: var(--color-faint);
   --color-accent: var(--color-accent);
   --color-accent-strong: var(--color-accent-strong);
+  --color-accent-deep: var(--color-accent-deep);
   --color-gold: var(--color-gold);
+  --color-gold-soft: var(--color-gold-soft);
   --color-line: var(--color-line);
+  --color-line-soft: var(--color-line-soft);
+  --color-line-strong: var(--color-line-strong);
   --color-danger: var(--color-danger);
+  --color-danger-strong: var(--color-danger-strong);
   --color-danger-soft-bg: var(--color-danger-soft-bg);
   --color-danger-soft-fg: var(--color-danger-soft-fg);
   --color-warn-soft-bg: var(--color-warn-soft-bg);
   --color-warn-soft-fg: var(--color-warn-soft-fg);
   --color-ok-soft-bg: var(--color-ok-soft-bg);
   --color-ok-soft-fg: var(--color-ok-soft-fg);
+  --color-info-soft-bg: var(--color-info-soft-bg);
+  --color-info-soft-fg: var(--color-info-soft-fg);
 
+  --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
   --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
 
   --shadow-card: var(--shadow-card);
+  --shadow-lift: var(--shadow-lift);
 
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
 }
 
+/* ============================================================
+   Canvas — warm gradient + paper-grain noise overlay.
+   The noise SVG is inlined so no extra request.
+   ============================================================ */
 html,
 body {
   background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(197, 154, 84, 0.18), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(141, 98, 54, 0.12), transparent 55%),
     linear-gradient(180deg, var(--color-bg-grad-from) 0%, var(--color-bg-grad-to) 100%);
+  background-attachment: fixed;
   color: var(--color-text);
   font-family: var(--font-sans);
+  font-feature-settings: "ss01", "ss02", "cv11", "calt";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body {
   min-height: 100dvh;
+  position: relative;
 }
 
-/* tabular numerics for prices/totals */
+/* paper grain — sits above background, below content */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.55;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.45  0 0 0 0 0.36  0 0 0 0 0.24  0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 220px 220px;
+}
+
+/* faint gold rule across the page top — editorial banner */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--color-gold) 20%, var(--color-accent-strong) 50%, var(--color-gold) 80%, transparent);
+  z-index: 60;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* ensure children sit above the grain */
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   Typography — Fraunces display (with italic & opsz), Inter Tight body,
+   JetBrains Mono for tabular SKU/money/order numbers.
+   ============================================================ */
+
+.font-display {
+  font-family: var(--font-display);
+  font-feature-settings: "ss01", "ss02", "ss03", "ss05", "swsh", "salt", "calt";
+  font-optical-sizing: auto;
+  letter-spacing: -0.015em;
+}
+
+.font-mono,
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum", "zero", "ss02";
+  letter-spacing: -0.005em;
+}
+
+/* tabular numerics for prices/totals — preserved name from v1 */
 .num,
 .tabular {
   font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum", "lnum";
 }
 
-/* respect prefers-reduced-motion: collapse animations and transitions */
+/* hand-letterpress: pressed-into-paper double shadow */
+.letterpress {
+  text-shadow:
+    0 1px 0 rgba(255, 250, 240, 0.55),
+    0 -1px 0 rgba(58, 38, 18, 0.18);
+}
+
+/* hero display headline — italic Fraunces with refined micro-detail */
+.headline {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 0.92;
+  font-feature-settings: "ss01", "swsh", "salt";
+  font-optical-sizing: auto;
+}
+
+.headline-upright {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 0.95;
+}
+
+/* small-caps editorial kicker */
+.kicker {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.kicker-gold {
+  color: var(--color-accent-strong);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.kicker-gold::before,
+.kicker-gold::after {
+  content: "";
+  width: 18px;
+  height: 1px;
+  background: var(--color-gold);
+}
+
+/* ornament — single fleuron divider */
+.fleuron {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-gold);
+  font-family: var(--font-display);
+  font-style: italic;
+}
+.fleuron::before,
+.fleuron::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-line-strong), transparent);
+}
+
+/* ============================================================
+   Panels & cards — meowmeow lineage, refined.
+   ============================================================ */
+
+.panel {
+  border: 1px solid color-mix(in oklch, var(--color-accent) 18%, transparent);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, var(--color-panel-strong) 0%, #fcf5e9 100%);
+  box-shadow: var(--shadow-card);
+}
+
+.panel-quiet {
+  border: 1px solid var(--color-line-soft);
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklch, var(--color-panel) 80%, transparent);
+}
+
+.panel-lift {
+  border: 1px solid color-mix(in oklch, var(--color-accent) 22%, transparent);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, var(--color-panel-strong) 0%, var(--color-panel) 100%);
+  box-shadow: var(--shadow-lift);
+}
+
+.panel-tag {
+  /* a strip glued to the top-left of a panel — like a paper sticker */
+  position: absolute;
+  top: -10px;
+  left: 24px;
+  padding: 4px 12px;
+  background: var(--color-accent-strong);
+  color: #fffdf8;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  box-shadow: 0 6px 12px rgba(77, 53, 29, 0.18);
+}
+
+/* ============================================================
+   Buttons — preserved .btn-accent + new size & ghost variants.
+   ============================================================ */
+
+.btn-accent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(180deg, #a9763f 0%, #7e552a 100%);
+  color: #fffdf8;
+  border: 1px solid color-mix(in oklch, var(--color-accent-strong) 28%, transparent);
+  box-shadow: 0 12px 24px rgba(141, 98, 54, 0.22), var(--shadow-press);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  transition: filter 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+}
+.btn-accent:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+.btn-accent:active {
+  transform: translateY(0);
+  filter: brightness(0.96);
+}
+.btn-accent:disabled {
+  opacity: 0.55;
+  filter: grayscale(0.2);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--color-panel);
+  color: var(--color-accent-strong);
+  border: 1px solid var(--color-line);
+  font-weight: 600;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.btn-ghost:hover {
+  background: var(--color-panel-strong);
+  border-color: var(--color-line-strong);
+}
+
+.btn-link {
+  color: var(--color-accent-strong);
+  border-bottom: 1px solid color-mix(in oklch, var(--color-accent) 35%, transparent);
+  padding-bottom: 2px;
+  font-weight: 600;
+  transition: border-color 120ms ease, color 120ms ease;
+}
+.btn-link:hover {
+  color: var(--color-accent-deep);
+  border-color: var(--color-accent);
+}
+
+/* sizes */
+.btn-sm {
+  padding: 0.45rem 0.95rem;
+  font-size: 0.825rem;
+  border-radius: var(--radius-md);
+}
+.btn-md {
+  padding: 0.65rem 1.25rem;
+  font-size: 0.95rem;
+  border-radius: var(--radius-md);
+}
+.btn-lg {
+  padding: 0.85rem 1.6rem;
+  font-size: 1rem;
+  border-radius: var(--radius-md);
+}
+.btn-xl {
+  padding: 1.05rem 2rem;
+  font-size: 1.05rem;
+  border-radius: var(--radius-lg);
+}
+
+/* ============================================================
+   Form fields
+   ============================================================ */
+
+.field {
+  width: 100%;
+  background: var(--color-panel-strong);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.9rem;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  font-feature-settings: "ss01", "ss02";
+}
+.field:hover {
+  border-color: var(--color-line-strong);
+}
+.field:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  background: #fffefb;
+  box-shadow: 0 0 0 4px color-mix(in oklch, var(--color-accent) 14%, transparent);
+}
+.field::placeholder {
+  color: var(--color-faint);
+}
+
+.field-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-soft);
+  letter-spacing: 0.04em;
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   Chips / status pills
+   ============================================================ */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.22rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  font-feature-settings: "tnum";
+}
+.chip-ok       { background: var(--color-ok-soft-bg); color: var(--color-ok-soft-fg); border-color: color-mix(in oklch, var(--color-ok-soft-fg) 28%, transparent); }
+.chip-warn     { background: var(--color-warn-soft-bg); color: var(--color-warn-soft-fg); border-color: color-mix(in oklch, var(--color-warn-soft-fg) 28%, transparent); }
+.chip-danger   { background: var(--color-danger-soft-bg); color: var(--color-danger-soft-fg); border-color: color-mix(in oklch, var(--color-danger-soft-fg) 28%, transparent); }
+.chip-info     { background: var(--color-info-soft-bg); color: var(--color-info-soft-fg); border-color: color-mix(in oklch, var(--color-info-soft-fg) 28%, transparent); }
+.chip-neutral  { background: var(--color-soft); color: var(--color-text-soft); border-color: var(--color-line); }
+.chip-gold     { background: var(--color-gold-soft); color: var(--color-accent-deep); border-color: color-mix(in oklch, var(--color-accent) 35%, transparent); }
+
+/* ============================================================
+   Tables — meant for /app and /admin data views
+   ============================================================ */
+
+.tbl {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.9rem;
+}
+.tbl thead th {
+  text-align: left;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  padding: 0.75rem 0.9rem;
+  border-bottom: 1px solid var(--color-line);
+  background: color-mix(in oklch, var(--color-soft) 50%, transparent);
+}
+.tbl tbody td {
+  padding: 0.85rem 0.9rem;
+  border-bottom: 1px solid var(--color-line-soft);
+  vertical-align: top;
+}
+.tbl tbody tr:hover td {
+  background: color-mix(in oklch, var(--color-panel-strong) 60%, transparent);
+}
+.tbl tbody tr:last-child td {
+  border-bottom: none;
+}
+.tbl .num,
+.tbl .mono {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* ============================================================
+   Family scopes — applied at top-level layouts.
+   Use these to gently shift density across the three families
+   without diverging the design system.
+   ============================================================ */
+
+/* .theme-public — marketing & customer-facing, generous & ornamental */
+.theme-public h1,
+.theme-public .h-hero {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* .theme-app — operator workspace, dense & calm */
+.theme-app .panel { border-radius: var(--radius-lg); }
+.theme-app .field { padding: 0.55rem 0.8rem; font-size: 0.9rem; }
+
+/* .theme-admin — platform admin, utilitarian */
+.theme-admin .panel { border-radius: var(--radius-md); box-shadow: none; border-color: var(--color-line); }
+.theme-admin h1, .theme-admin h2 { letter-spacing: -0.015em; }
+
+/* ============================================================
+   Motion — staggered entrance for hero sections.
+   Honor prefers-reduced-motion.
+   ============================================================ */
+
+@keyframes paper-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.rise {
+  animation: paper-rise 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.rise-1  { animation-delay:  60ms; }
+.rise-2  { animation-delay: 140ms; }
+.rise-3  { animation-delay: 220ms; }
+.rise-4  { animation-delay: 300ms; }
+.rise-5  { animation-delay: 380ms; }
+.rise-6  { animation-delay: 460ms; }
+
+@keyframes underline-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+.underline-grow {
+  display: inline-block;
+  position: relative;
+}
+.underline-grow::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 2px;
+  background: var(--color-gold);
+  transform-origin: left;
+  animation: underline-grow 800ms cubic-bezier(0.2, 0.7, 0.2, 1) 300ms both;
+}
+
+/* respect prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -113,34 +573,9 @@ body {
   }
 }
 
-/* meowmeow-style soft panel */
-.panel {
-  border: 1px solid color-mix(in oklch, var(--color-accent) 16%, transparent);
-  border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, var(--color-panel-strong) 0%, #fcf5e9 100%);
-  box-shadow: var(--shadow-card);
-}
-
-/* meowmeow-style active button */
-.btn-accent {
-  background: linear-gradient(180deg, #a9763f 0%, #7e552a 100%);
-  color: #fffdf8;
-  border: 1px solid color-mix(in oklch, var(--color-accent-strong) 24%, transparent);
-  box-shadow: 0 12px 24px rgba(141, 98, 54, 0.2);
-}
-.btn-accent:hover {
-  filter: brightness(1.04);
-}
-.btn-accent:disabled {
-  opacity: 0.55;
-  filter: grayscale(0.2);
-  cursor: not-allowed;
-}
-
 /* ============================================================
-   Print receipt — used on /app/pos/success/[orderId].
-   Hides app chrome and the controls; renders the panel full-width.
-   Add .no-print to anything that should be hidden on print.
+   Print — preserved from v1, tightened.
+   Used on /app/pos/success/[orderId].
    ============================================================ */
 @media print {
   html,
@@ -148,13 +583,16 @@ body {
     background: #fff !important;
     color: #000 !important;
   }
-  /* Hide app shell (top bar / nav) and any explicitly-marked elements. */
+  body::before,
+  body::after { display: none !important; }
   .no-print,
   header,
   nav {
     display: none !important;
   }
-  .panel {
+  .panel,
+  .panel-lift,
+  .panel-quiet {
     border: none !important;
     background: #fff !important;
     box-shadow: none !important;
@@ -162,10 +600,10 @@ body {
     padding: 0 !important;
   }
   .num,
-  .tabular {
+  .tabular,
+  .mono {
     font-variant-numeric: tabular-nums lining-nums;
   }
-  /* Try to fit a thermal-printer-style narrow column. */
   main {
     max-width: 80mm !important;
     padding: 0 !important;

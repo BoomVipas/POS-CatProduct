@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
 
 export function ApproveRejectButtons({
@@ -27,6 +26,12 @@ export function ApproveRejectButtons({
   }
 
   function reject() {
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm("Reject this application? This cannot be undone.")
+    ) {
+      return;
+    }
     startTransition(async () => {
       await fakeDelay();
       setDone("rejected");
@@ -40,25 +45,36 @@ export function ApproveRejectButtons({
 
   if (done) {
     return (
-      <p className="text-xs font-bold uppercase tracking-wider text-muted">
+      <span
+        className={
+          done === "approved" ? "chip chip-ok" : "chip chip-danger"
+        }
+      >
         {done}
-      </p>
+      </span>
     );
   }
 
   return (
-    <div className="flex gap-2">
-      <Button
-        variant="primary"
-        size="sm"
+    <div className="inline-flex items-center justify-end gap-2">
+      <button
+        type="button"
+        className="btn-accent btn-sm"
         onClick={approve}
-        loading={pending}
+        disabled={pending}
+        aria-busy={pending}
       >
-        Approve
-      </Button>
-      <Button variant="danger" size="sm" onClick={reject} loading={pending}>
+        {pending ? "…" : "Approve"}
+      </button>
+      <button
+        type="button"
+        className="btn-ghost btn-sm"
+        onClick={reject}
+        disabled={pending}
+        aria-busy={pending}
+      >
         Reject
-      </Button>
+      </button>
     </div>
   );
 }

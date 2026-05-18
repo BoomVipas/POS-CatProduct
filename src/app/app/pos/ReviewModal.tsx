@@ -176,19 +176,20 @@ export function ReviewModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 px-3 py-6">
-      <div className="panel relative w-full max-w-lg p-5">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-text/40 px-3 py-6 backdrop-blur-sm">
+      <div className="panel-lift relative w-full max-w-lg p-6">
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-3 top-3 rounded-full bg-soft px-3 py-1 text-sm font-extrabold text-muted"
+          className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-soft text-sm font-semibold text-muted hover:text-text"
         >
           ✕
         </button>
 
-        <h2 className="font-display text-2xl text-accent-strong">
-          Review sale
+        <p className="kicker">Confirm</p>
+        <h2 className="headline-upright mt-1 text-3xl text-accent-deep">
+          {t.pos.reviewSale}
         </h2>
 
         <ul className="mt-4 grid gap-2">
@@ -201,19 +202,21 @@ export function ReviewModal({
                 className="flex items-baseline justify-between gap-3 border-b border-line/60 pb-2 text-sm"
               >
                 <div className="min-w-0">
-                  <p className="text-[10px] font-bold text-muted">{p.sku}</p>
-                  <p className="font-extrabold text-text">{p.name}</p>
-                  <p className="text-xs text-muted">
+                  <p className="mono text-[10px] text-muted">{p.sku}</p>
+                  <p className="headline-upright text-base text-text">
+                    {p.name}
+                  </p>
+                  <p className="mono num text-xs text-muted">
                     {line.qty} × {formatTHB(p.price_satang)}
                     {line.fulfillment === "send_later" && " · send later"}
                   </p>
                   {line.note && (
-                    <p className="mt-0.5 text-[11px] italic text-[#6d4c28]">
+                    <p className="mt-0.5 text-[11px] italic text-accent-strong">
                       “{line.note}”
                     </p>
                   )}
                 </div>
-                <p className="num shrink-0 text-sm font-extrabold text-accent-strong">
+                <p className="mono num shrink-0 text-sm font-semibold text-accent-strong">
                   {formatTHB(p.price_satang * line.qty)}
                 </p>
               </li>
@@ -234,12 +237,14 @@ export function ReviewModal({
             />
           )}
           <div className="mt-1 flex items-baseline justify-between border-t border-line pt-2">
-            <span className="font-display text-lg">Total</span>
-            <span className="num text-2xl font-black text-accent-strong">
+            <span className="headline-upright text-xl text-accent-deep">
+              {t.pos.total}
+            </span>
+            <span className="mono num text-3xl font-semibold text-accent-deep">
               {formatTHB(total)}
             </span>
           </div>
-          <p className="mt-1 text-xs text-muted">
+          <p className="mt-2 text-xs text-muted">
             Payment method:{" "}
             <strong className="text-accent-strong">
               {cart.splits.length > 0
@@ -248,14 +253,14 @@ export function ReviewModal({
             </strong>
           </p>
           {cart.splits.length > 0 && (
-            <ul className="mt-1 grid gap-0.5 rounded-xl bg-soft px-3 py-2 text-xs">
+            <ul className="mt-1 grid gap-0.5 rounded-[var(--radius-md)] bg-soft px-3 py-2 text-xs">
               {cart.splits.map((s, i) => (
                 <li
                   key={i}
                   className="flex items-baseline justify-between gap-2"
                 >
-                  <span className="font-bold text-muted">{s.method}</span>
-                  <span className="num font-bold">
+                  <span className="font-semibold text-muted">{s.method}</span>
+                  <span className="mono num font-semibold">
                     {formatTHB(s.amountSatang)}
                   </span>
                 </li>
@@ -265,7 +270,7 @@ export function ReviewModal({
           {cart.splits.length === 0 &&
             cart.paymentMethod === "cash" &&
             cart.cashTenderedSatang > 0 && (
-              <div className="mt-1 grid gap-0.5 rounded-xl bg-[var(--color-ok-soft-bg)] px-3 py-2 text-xs text-[var(--color-ok-soft-fg)]">
+              <div className="mt-1 grid gap-0.5 rounded-[var(--radius-md)] bg-[var(--color-ok-soft-bg)] px-3 py-2 text-xs text-[var(--color-ok-soft-fg)]">
                 <Row
                   label="Tendered"
                   value={formatTHB(cart.cashTenderedSatang)}
@@ -281,31 +286,41 @@ export function ReviewModal({
               </div>
             )}
           {pointsToEarn > 0 && (
-            <p className="mt-1 rounded-xl bg-[var(--color-warn-soft-bg)] px-3 py-2 text-xs font-extrabold text-[var(--color-warn-soft-fg)]">
+            <p className="mt-1 rounded-[var(--radius-md)] bg-[var(--color-warn-soft-bg)] px-3 py-2 text-xs font-semibold text-[var(--color-warn-soft-fg)]">
               ★ {t.pos.loyaltyEarnsPoints(pointsToEarn)}
               {cart.customer.phone.trim() === "" &&
                 " — add a customer phone to bank them"}
             </p>
           )}
           {hasSendLater && (
-            <p className="rounded-xl border border-[#ddc4a2] bg-[#fff7ec] px-3 py-2 text-xs text-[#6d4c28]">
+            <p className="rounded-[var(--radius-md)] border border-gold-soft bg-gold-soft/30 px-3 py-2 text-xs text-accent-strong">
               Send-later: customer info will be required at confirm (DD-76).
             </p>
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={handleConfirm}
-          disabled={confirmed}
-          className="btn-accent mt-5 w-full rounded-2xl px-5 py-3 text-base font-extrabold"
-        >
-          {confirmed ? "Saved" : "Confirm sale"}
-        </button>
+        <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={confirmed}
+            className="btn-ghost btn-md"
+          >
+            {t.common.cancel}
+          </button>
+          <button
+            type="button"
+            onClick={handleConfirm}
+            disabled={confirmed}
+            className="btn-accent btn-xl w-full sm:w-auto"
+          >
+            {confirmed ? "Saved" : "Confirm sale"}
+          </button>
+        </div>
 
-        <p className="mt-2 text-center text-xs text-muted">
+        <p className="mt-3 text-center text-xs text-muted">
           Demo mode: persists to localStorage. DD-65 swaps in the real{" "}
-          <code>create_order</code> RPC.
+          <code className="mono">create_order</code> RPC.
         </p>
       </div>
     </div>
@@ -323,10 +338,16 @@ function Row({
 }) {
   return (
     <div className="flex items-baseline justify-between gap-2">
-      <span className={muted ? "font-bold text-muted" : "font-bold"}>
+      <span
+        className={
+          muted
+            ? "text-xs font-semibold uppercase tracking-wider text-muted"
+            : "text-xs font-semibold uppercase tracking-wider text-text-soft"
+        }
+      >
         {label}
       </span>
-      <span className="num font-bold">{value}</span>
+      <span className="mono num font-semibold text-text">{value}</span>
     </div>
   );
 }

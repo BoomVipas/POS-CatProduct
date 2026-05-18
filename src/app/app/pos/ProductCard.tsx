@@ -20,11 +20,11 @@ export function ProductCard({
   const soldout = remaining <= 0;
   const low = remaining > 0 && remaining <= 5;
 
-  const stockClass = soldout
-    ? "bg-[var(--color-danger-soft-bg)] text-[var(--color-danger-soft-fg)]"
+  const stockChip = soldout
+    ? "chip chip-danger"
     : low
-      ? "bg-[var(--color-warn-soft-bg)] text-[var(--color-warn-soft-fg)]"
-      : "bg-[var(--color-ok-soft-bg)] text-[var(--color-ok-soft-fg)]";
+      ? "chip chip-warn"
+      : "chip chip-ok";
 
   const handleClick = () => {
     if (soldout) {
@@ -39,9 +39,9 @@ export function ProductCard({
       type="button"
       onClick={handleClick}
       disabled={soldout && !onPreOrder}
-      className="group grid gap-1 rounded-2xl border border-[color-mix(in_oklch,var(--color-accent)_12%,transparent)] bg-gradient-to-b from-[#fffefd] via-[#fff8f0] to-[#f8eedf] p-2 text-left shadow-[0_10px_20px_rgba(77,53,29,0.05)] transition hover:-translate-y-px hover:shadow-[0_16px_28px_rgba(77,53,29,0.10)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-[0_10px_20px_rgba(77,53,29,0.05)]"
+      className="panel-quiet group grid gap-2 p-2 text-left transition hover:-translate-y-px hover:shadow-[var(--shadow-card)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
     >
-      <div className="relative grid aspect-[5/1.95] place-items-center overflow-hidden rounded-xl border border-[color-mix(in_oklch,var(--color-accent)_10%,transparent)] bg-gradient-to-b from-[#fffaf4] to-[#f3e5cf]">
+      <div className="relative grid aspect-[5/1.95] place-items-center overflow-hidden rounded-[var(--radius-md)] border border-line-soft bg-soft">
         {product.image_path ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -50,28 +50,28 @@ export function ProductCard({
             className="h-full w-full object-cover"
           />
         ) : (
-          <span className="px-3 text-center text-xs font-extrabold leading-tight text-[#8d704f]">
+          <span className="headline-upright px-3 text-center text-sm text-accent-strong">
             {product.name}
           </span>
         )}
-        <span className="absolute left-2 top-2 rounded-full border border-[color-mix(in_oklch,var(--color-accent)_10%,transparent)] bg-[rgba(255,251,245,0.94)] px-1.5 py-0.5 text-[11px] font-extrabold text-[#5f462a]">
+        <span className="mono absolute left-2 top-2 rounded-full border border-line-soft bg-panel-strong/90 px-2 py-0.5 text-[10px] font-semibold text-muted">
           {product.sku}
         </span>
-        <span
-          className={`absolute right-2 top-2 rounded-full px-2 py-0.5 text-[11px] font-extrabold ${stockClass}`}
-        >
+        <span className={`${stockChip} absolute right-2 top-2`}>
           {soldout
             ? onPreOrder
               ? `★ ${t.preOrders.soldOutCta}`
               : "sold out"
-            : remaining}
+            : (
+                <span className="num">{remaining}</span>
+              )}
         </span>
       </div>
-      <div className="flex items-baseline justify-between gap-2 px-1 pt-1">
-        <span className="line-clamp-2 text-[13px] font-extrabold leading-tight text-text">
+      <div className="flex items-baseline justify-between gap-2 px-1 pt-0.5">
+        <span className="headline-upright line-clamp-2 text-base leading-tight text-text">
           {product.name}
         </span>
-        <span className="num shrink-0 text-[15px] font-extrabold text-accent-strong/95">
+        <span className="mono num shrink-0 text-lg font-semibold text-accent-strong">
           {formatTHB(product.price_satang)}
         </span>
       </div>

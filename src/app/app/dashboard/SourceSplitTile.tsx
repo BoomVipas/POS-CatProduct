@@ -5,15 +5,17 @@ import {
 } from "@/lib/demo/sales";
 import type { SourceSplitRow } from "@/lib/demo/source-split";
 
+// All source bars use the brown/gold token gradient for visual cohesion.
+// Channel identity is carried by the label, not by brand colors.
 const TONE: Record<OrderSource, string> = {
-  booth: "from-[#a9763f] to-[#7e552a]",
-  qr_menu: "from-[#5b8a72] to-[#3f6a55]",
-  line: "from-[#4cc764] to-[#2f9b48]",
-  shopee: "from-[#ee4d2d] to-[#c93b1f]",
-  lazada: "from-[#0f146e] to-[#080a4a]",
-  tiktok: "from-[#000] to-[#222]",
-  phone: "from-[#7886b8] to-[#5560a0]",
-  other: "from-[#888] to-[#555]",
+  booth: "from-accent to-accent-deep",
+  qr_menu: "from-accent to-accent-deep",
+  line: "from-accent to-accent-deep",
+  shopee: "from-accent to-accent-deep",
+  lazada: "from-accent to-accent-deep",
+  tiktok: "from-accent to-accent-deep",
+  phone: "from-accent to-accent-deep",
+  other: "from-accent to-accent-deep",
 };
 
 export function SourceSplitTile({
@@ -25,10 +27,8 @@ export function SourceSplitTile({
 }) {
   if (rows.length === 0) return null;
   return (
-    <div className="rounded-[var(--radius-lg)] border border-line bg-panel-strong px-5 py-4">
-      <p className="text-xs font-bold uppercase tracking-wider text-muted">
-        Revenue by source
-      </p>
+    <div className="panel-quiet border-l-2 border-line-strong px-5 py-4">
+      <p className="kicker">Revenue by source</p>
       <ul className="mt-3 grid gap-2">
         {rows.map((r) => {
           const pct =
@@ -38,14 +38,14 @@ export function SourceSplitTile({
           return (
             <li key={r.source}>
               <div className="flex items-baseline justify-between gap-2 text-sm">
-                <span className="font-extrabold text-text">
+                <span className="font-semibold text-text">
                   {orderSourceLabel(r.source)}
                 </span>
-                <span className="num text-muted">× {r.bills}</span>
-                <span className="num shrink-0 font-extrabold text-accent-strong">
+                <span className="mono num text-muted">× {r.bills}</span>
+                <span className="mono num shrink-0 font-semibold text-accent-deep">
                   {formatTHB(r.revenueSatang)}
                 </span>
-                <span className="num shrink-0 text-[11px] font-bold text-muted">
+                <span className="mono num shrink-0 text-[11px] font-semibold text-muted">
                   {pct.toFixed(1)}%
                 </span>
               </div>

@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useDemoSales } from "@/lib/demo/useDemoSales";
 import { useDemoCatalog } from "@/lib/demo/useDemoCatalog";
 import { useDemoAudit } from "@/lib/demo/useDemoAudit";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { Pill } from "@/components/ui/Pill";
 import { useToast } from "@/components/ui/Toast";
 import { formatTHB } from "@/lib/money/format";
 import { formatDateTimeTH } from "@/lib/date";
@@ -20,12 +19,27 @@ import {
   type DemoRefund,
 } from "@/lib/demo/sales";
 
+type RangeKey = "7d" | "30d" | "all";
+
+const RANGE_LABEL: Record<RangeKey, string> = {
+  "7d": "Last 7 days",
+  "30d": "Last 30 days",
+  all: "All time",
+};
+
+function rangeCutoff(range: RangeKey): number | null {
+  if (range === "all") return null;
+  const days = range === "7d" ? 7 : 30;
+  return Date.now() - days * 24 * 60 * 60 * 1000;
+}
+
 export function CorrectionList() {
   const { orders, ready, update } = useDemoSales();
   const { items: catalog, update: updateProduct } = useDemoCatalog();
   const audit = useDemoAudit();
   const { push } = useToast();
 
+  const [range, setRange] = useState<RangeKey>("30d");
   const [voiding, setVoiding] = useState<DemoOrder | null>(null);
   const [voidReason, setVoidReason] = useState("");
 
@@ -33,17 +47,26 @@ export function CorrectionList() {
   const [refundQty, setRefundQty] = useState<Record<number, number>>({});
   const [refundReason, setRefundReason] = useState("");
 
+  const recent = useMemo(() => {
+    const cutoff = rangeCutoff(range);
+    return [...orders]
+      .filter((o) => {
+        if (cutoff === null) return true;
+        const t = new Date(o.createdAt).getTime();
+        return Number.isFinite(t) ? t >= cutoff : true;
+      })
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, 60);
+  }, [orders, range]);
+
   if (!ready) {
     return (
-      <p className="rounded-2xl border border-line bg-panel px-4 py-6 text-center text-sm text-muted">
-        Loading…
-      </p>
+      <section className="panel-quiet mt-8 px-6 py-10 text-center">
+        <p className="kicker">Loading</p>
+        <p className="mt-2 text-sm text-muted">Fetching recent sales…</p>
+      </section>
     );
   }
-
-  const recent = [...orders]
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .slice(0, 30);
 
   function startVoid(o: DemoOrder) {
     setVoiding(o);
@@ -67,7 +90,6 @@ export function CorrectionList() {
       voidReason: voidReason.trim(),
     });
 
-    // Restore demo catalog stock — only for qty NOT already refunded.
     const incrementBy = new Map<string, number>();
     voiding.items.forEach((it, idx) => {
       const remaining = remainingQty(voiding, idx);
@@ -151,7 +173,6 @@ export function CorrectionList() {
     update(refunding.id, {
       refunds: [...(refunding.refunds ?? []), ...newRefunds],
     });
-    // Restore demo catalog stock for the refunded qtys.
     const incrementBy = new Map<string, number>();
     for (const r of newRefunds) {
       const item = refunding.items[r.lineIndex];
@@ -184,121 +205,187 @@ export function CorrectionList() {
     setRefundReason("");
   }
 
-  if (recent.length === 0) {
-    return (
-      <div className="panel mt-8 p-8 text-center">
-        <p className="font-display text-xl text-accent-strong">No sales yet.</p>
-        <p className="mt-2 text-sm text-muted">
-          Confirm a sale at /app/pos and it will appear here for correction.
-        </p>
-        <Link
-          href="/app/pos"
-          className="btn-accent mt-4 inline-flex rounded-[var(--radius-md)] px-4 py-2 text-sm font-bold"
-        >
-          Open POS
-        </Link>
-      </div>
-    );
-  }
-
   return (
     <>
-      <ul className="mt-6 grid gap-2">
-        {recent.map((o) => {
-          const isVoided = (o.status ?? "completed") === "voided";
-          const refundCount = (o.refunds ?? []).length;
-          const effective = effectiveTotalSatang(o);
-          const isFullyRefunded = !isVoided && effective === 0 && refundCount > 0;
-          const refundedTotal = (o.refunds ?? []).reduce(
-            (s, r) => s + r.amountSatang,
-            0,
-          );
-          return (
-            <li
-              key={o.id}
-              className={`rounded-[var(--radius-lg)] border ${
-                isVoided
-                  ? "border-[var(--color-danger-soft-fg)]/30 bg-[var(--color-danger-soft-bg)]/30"
-                  : refundCount > 0
-                    ? "border-[var(--color-warn-soft-fg)]/30 bg-[var(--color-warn-soft-bg)]/30"
-                    : "border-line bg-panel"
-              } px-4 py-3`}
-            >
-              <div className="flex flex-wrap items-baseline justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-baseline gap-2">
-                    <span className="num text-xs font-bold text-muted">
-                      {o.orderNumber}
-                    </span>
-                    {o.source && o.source !== "booth" && (
-                      <Pill tone="accent">{orderSourceLabel(o.source)}</Pill>
-                    )}
-                    {isVoided && <Pill tone="danger">voided</Pill>}
-                    {isFullyRefunded && (
-                      <Pill tone="warn">fully refunded</Pill>
-                    )}
-                    {!isFullyRefunded && refundCount > 0 && (
-                      <Pill tone="warn">partial refund</Pill>
-                    )}
-                    <span className="text-xs text-muted">
-                      {formatDateTimeTH(o.createdAt)}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-xs text-muted">
-                    {o.items.length} line
-                    {o.items.length === 1 ? "" : "s"} · {o.paymentMethod}
-                    {refundCount > 0 && (
-                      <>
-                        {" · refunded "}
-                        <span className="num">{formatTHB(refundedTotal)}</span>
-                      </>
-                    )}
-                  </p>
-                  {o.voidReason && (
-                    <p className="mt-1 text-xs text-[var(--color-danger-soft-fg)]">
-                      Void reason: <strong>{o.voidReason}</strong>
-                    </p>
-                  )}
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span
-                    className={`num text-base font-extrabold ${
-                      effective < o.totalSatang
-                        ? "text-[var(--color-warn-soft-fg)]"
-                        : "text-accent-strong"
-                    }`}
-                  >
-                    {formatTHB(effective)} THB
-                    {effective < o.totalSatang && (
-                      <span className="ml-1 text-[10px] font-bold text-muted">
-                        / {formatTHB(o.totalSatang)}
-                      </span>
-                    )}
-                  </span>
-                  {!isVoided && !isFullyRefunded && (
-                    <>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => startRefund(o)}
-                      >
-                        Refund
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="danger"
-                        onClick={() => startVoid(o)}
-                      >
-                        Void
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <p className="kicker">Recent activity</p>
+        <div className="flex items-center gap-1.5" role="tablist" aria-label="Filter range">
+          {(Object.keys(RANGE_LABEL) as RangeKey[]).map((k) => {
+            const active = range === k;
+            return (
+              <button
+                key={k}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setRange(k)}
+                className={
+                  active
+                    ? "chip chip-gold cursor-pointer"
+                    : "chip chip-neutral cursor-pointer"
+                }
+              >
+                {RANGE_LABEL[k]}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {recent.length === 0 ? (
+        <section className="panel-quiet mt-4 px-6 py-12 text-center">
+          <p className="kicker kicker-gold mx-auto inline-flex">No corrections</p>
+          <p
+            className="mt-3 text-2xl text-accent-deep"
+            style={{ fontFamily: "var(--font-display)", fontStyle: "italic" }}
+          >
+            No corrections this period
+          </p>
+          <p className="mx-auto mt-2 max-w-[42ch] text-sm text-muted">
+            Confirm a sale at the POS and it will appear here for void or
+            refund.
+          </p>
+          <Link href="/app/pos" className="btn-link mt-5 inline-block text-sm">
+            Open POS →
+          </Link>
+        </section>
+      ) : (
+        <section className="panel-quiet mt-4 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="tbl">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Order #</th>
+                  <th>Reason / Notes</th>
+                  <th className="text-right">Amount</th>
+                  <th>Status</th>
+                  <th>Source</th>
+                  <th className="text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recent.map((o) => {
+                  const isVoided = (o.status ?? "completed") === "voided";
+                  const refundCount = (o.refunds ?? []).length;
+                  const effective = effectiveTotalSatang(o);
+                  const isFullyRefunded =
+                    !isVoided && effective === 0 && refundCount > 0;
+                  const isPartial =
+                    !isVoided && !isFullyRefunded && refundCount > 0;
+                  const refundedTotal = (o.refunds ?? []).reduce(
+                    (s, r) => s + r.amountSatang,
+                    0,
+                  );
+                  const hasCorrection = isVoided || refundCount > 0;
+                  return (
+                    <tr key={o.id}>
+                      <td className="mono text-xs text-text-soft whitespace-nowrap">
+                        {formatDateTimeTH(o.createdAt)}
+                      </td>
+                      <td className="whitespace-nowrap">
+                        <Link
+                          href={`/app/audit-log?target=${encodeURIComponent(o.id)}`}
+                          className="btn-link mono text-sm"
+                        >
+                          {o.orderNumber}
+                        </Link>
+                        <div className="mt-1 text-[11px] text-muted">
+                          {o.items.length} line
+                          {o.items.length === 1 ? "" : "s"} · {o.paymentMethod}
+                        </div>
+                      </td>
+                      <td className="text-sm text-text-soft">
+                        {o.voidReason ? (
+                          <span>
+                            <span className="text-muted">Void reason: </span>
+                            <strong className="text-[var(--color-danger-soft-fg)]">
+                              {o.voidReason}
+                            </strong>
+                          </span>
+                        ) : refundCount > 0 ? (
+                          <span className="text-muted">
+                            {refundCount} refund
+                            {refundCount === 1 ? "" : "s"} recorded
+                          </span>
+                        ) : (
+                          <span className="text-faint">—</span>
+                        )}
+                      </td>
+                      <td className="whitespace-nowrap text-right align-top">
+                        <div
+                          className={`mono num text-sm font-bold ${
+                            effective < o.totalSatang
+                              ? "text-[var(--color-warn-soft-fg)]"
+                              : "text-accent-strong"
+                          }`}
+                        >
+                          {formatTHB(effective)}
+                        </div>
+                        {effective < o.totalSatang && (
+                          <div className="mono num mt-0.5 text-[10px] text-muted">
+                            of {formatTHB(o.totalSatang)}
+                          </div>
+                        )}
+                        {refundedTotal > 0 && (
+                          <div className="mt-1">
+                            <span className="chip chip-danger mono">
+                              −{formatTHB(refundedTotal)}
+                            </span>
+                          </div>
+                        )}
+                      </td>
+                      <td className="whitespace-nowrap align-top">
+                        {isVoided ? (
+                          <span className="chip chip-danger">full void</span>
+                        ) : isFullyRefunded ? (
+                          <span className="chip chip-warn">fully refunded</span>
+                        ) : isPartial ? (
+                          <span className="chip chip-warn">partial</span>
+                        ) : (
+                          <span className="chip chip-ok">completed</span>
+                        )}
+                      </td>
+                      <td className="whitespace-nowrap align-top text-xs text-text-soft">
+                        {o.source ? orderSourceLabel(o.source) : "booth"}
+                      </td>
+                      <td className="whitespace-nowrap text-right align-top">
+                        {!isVoided && !isFullyRefunded ? (
+                          <div className="inline-flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => startRefund(o)}
+                            >
+                              Refund
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="danger"
+                              onClick={() => startVoid(o)}
+                            >
+                              Void
+                            </Button>
+                          </div>
+                        ) : hasCorrection ? (
+                          <Link
+                            href={`/app/audit-log?target=${encodeURIComponent(o.id)}`}
+                            className="btn-link text-xs"
+                          >
+                            Audit trail
+                          </Link>
+                        ) : (
+                          <span className="text-faint text-xs">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       <Modal
         open={voiding !== null}
@@ -306,16 +393,17 @@ export function CorrectionList() {
         title={`Void ${voiding?.orderNumber ?? ""}`}
         size="sm"
       >
-        <p className="text-sm text-text/85">
+        <p className="text-sm text-text-soft">
           Restores inventory for each remaining line and excludes the order
           from dashboard totals. Cannot be undone in demo mode.
         </p>
+        <label className="field-label mt-4 block">Reason</label>
         <textarea
           value={voidReason}
           onChange={(e) => setVoidReason(e.currentTarget.value)}
           placeholder="Reason (required, min 3 chars)"
           rows={3}
-          className="mt-3 w-full rounded-[var(--radius-md)] border border-line bg-white px-3 py-2 text-sm text-text shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+          className="field"
         />
         <div className="mt-4 flex justify-end gap-2">
           <Button variant="ghost" onClick={() => setVoiding(null)}>
@@ -333,27 +421,32 @@ export function CorrectionList() {
         title={`Refund ${refunding?.orderNumber ?? ""}`}
         size="md"
       >
-        <p className="text-sm text-text/85">
+        <p className="text-sm text-text-soft">
           Pick which lines to refund and how many of each. Stock is restored
           for the refunded quantities. The order stays in the audit trail; the
           dashboard total adjusts.
         </p>
-        <ul className="mt-3 grid gap-2">
+        <ul className="mt-4 grid gap-2">
           {refunding?.items.map((it, idx) => {
             const remaining = remainingQty(refunding, idx);
             return (
               <li
                 key={idx}
-                className="grid grid-cols-[minmax(0,1fr)_minmax(0,90px)] gap-3 rounded-xl border border-line bg-panel p-3"
+                className="panel-quiet grid grid-cols-[minmax(0,1fr)_minmax(0,96px)] items-center gap-3 px-3 py-2.5"
               >
                 <div className="min-w-0">
-                  <p className="text-[10px] font-bold text-muted">{it.sku}</p>
-                  <p className="text-sm font-extrabold text-text">
+                  <p className="mono text-[10px] font-bold uppercase tracking-wider text-muted">
+                    {it.sku}
+                  </p>
+                  <p className="text-sm font-semibold text-text">
                     {it.productName}
                   </p>
-                  <p className="text-xs text-muted">
-                    {remaining}/{it.qty} refundable ·{" "}
-                    <span className="num">{formatTHB(it.unitPriceSatang)}</span>{" "}
+                  <p className="mt-0.5 text-xs text-muted">
+                    <span className="mono num">{remaining}</span>/
+                    <span className="mono num">{it.qty}</span> refundable ·{" "}
+                    <span className="mono num">
+                      {formatTHB(it.unitPriceSatang)}
+                    </span>{" "}
                     each
                   </p>
                 </div>
@@ -373,18 +466,19 @@ export function CorrectionList() {
                     }));
                   }}
                   disabled={remaining === 0}
-                  className="num w-full rounded-md border border-line bg-white px-2 py-1.5 text-right text-sm font-extrabold disabled:opacity-50 focus:border-accent focus:outline-none"
+                  className="field mono num text-right font-bold disabled:opacity-50"
                 />
               </li>
             );
           })}
         </ul>
+        <label className="field-label mt-4 block">Reason</label>
         <textarea
           value={refundReason}
           onChange={(e) => setRefundReason(e.currentTarget.value)}
           placeholder="Reason (required, min 3 chars)"
           rows={2}
-          className="mt-3 w-full rounded-[var(--radius-md)] border border-line bg-white px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+          className="field"
         />
         <div className="mt-4 flex justify-end gap-2">
           <Button variant="ghost" onClick={() => setRefunding(null)}>

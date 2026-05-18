@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useDemoPreOrders } from "@/lib/demo/useDemoPreOrders";
-import { Button } from "@/components/ui/Button";
-import { Pill, type PillTone } from "@/components/ui/Pill";
 import { useToast } from "@/components/ui/Toast";
 import { useT } from "@/lib/i18n/provider";
 import { formatDateTimeTH } from "@/lib/date";
@@ -22,11 +20,11 @@ const STATUSES: Array<PreOrderStatus | "all"> = [
   "cancelled",
 ];
 
-const TONE: Record<PreOrderStatus, PillTone> = {
-  pending: "warn",
-  notified: "accent",
-  fulfilled: "ok",
-  cancelled: "danger",
+const CHIP: Record<PreOrderStatus, string> = {
+  pending: "chip chip-warn",
+  notified: "chip chip-info",
+  fulfilled: "chip chip-ok",
+  cancelled: "chip chip-danger",
 };
 
 export function PreOrderList() {
@@ -37,34 +35,14 @@ export function PreOrderList() {
 
   if (!ready) {
     return (
-      <p className="rounded-2xl border border-line bg-panel px-4 py-6 text-center text-sm text-muted">
+      <section className="panel-quiet mt-8 px-6 py-10 text-center text-sm text-muted">
         {t.common.loading}
-      </p>
+      </section>
     );
   }
 
   const counts = countByStatus(items);
   const visible = filterByStatus(items, filter);
-
-  if (items.length === 0) {
-    return (
-      <div className="panel mt-8 p-8 text-center">
-        <p className="font-display text-xl text-accent-strong">
-          No pre-orders yet.
-        </p>
-        <p className="mt-2 text-sm text-muted">
-          When a sold-out product gets tapped at the booth, you can capture
-          the customer&rsquo;s info. They appear here for follow-up.
-        </p>
-        <Link
-          href="/app/pos"
-          className="btn-accent mt-4 inline-flex rounded-[var(--radius-md)] px-4 py-2 text-sm font-bold"
-        >
-          Open POS
-        </Link>
-      </div>
-    );
-  }
 
   function statusLabel(s: PreOrderStatus): string {
     if (s === "pending") return t.preOrders.statusPending;
@@ -73,114 +51,180 @@ export function PreOrderList() {
     return t.preOrders.statusCancelled;
   }
 
+  if (items.length === 0) {
+    return (
+      <section className="panel-quiet mt-8 px-8 py-14 text-center">
+        <p className="kicker kicker-gold justify-center">
+          {t.preOrders.title}
+        </p>
+        <p className="headline mt-3 text-3xl text-accent-deep">
+          No pre-orders right now
+        </p>
+        <p className="mx-auto mt-3 max-w-[52ch] text-sm text-text-soft">
+          When a sold-out product gets tapped at the booth, you can capture
+          the customer&rsquo;s info. They appear here for follow-up.
+        </p>
+        <div className="mt-5">
+          <Link href="/app/pos" className="btn-link text-sm">
+            Open POS →
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {STATUSES.map((s) => (
-          <button
-            key={s}
-            type="button"
-            onClick={() => setFilter(s)}
-            className={
-              s === filter
-                ? "rounded-full border border-accent-strong bg-accent px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white"
-                : "rounded-full border border-line bg-panel px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-strong"
-            }
-          >
-            {s === "all" ? `${t.common.all} (${counts.all})` : `${statusLabel(s)} (${counts[s]})`}
-          </button>
-        ))}
+      <div className="mt-6 flex flex-wrap items-center justify-end gap-2">
+        {STATUSES.map((s) => {
+          const active = s === filter;
+          const label =
+            s === "all"
+              ? `${t.common.all} (${counts.all})`
+              : `${statusLabel(s)} (${counts[s]})`;
+          return (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setFilter(s)}
+              className={
+                active
+                  ? "chip chip-gold cursor-pointer"
+                  : "chip chip-neutral cursor-pointer"
+              }
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
 
-      <ul className="mt-5 grid gap-3">
-        {visible.map((p) => (
-          <li
-            key={p.id}
-            className="rounded-[var(--radius-lg)] border border-line bg-panel px-5 py-4"
-          >
-            <div className="flex flex-wrap items-baseline justify-between gap-3">
-              <div>
-                <div className="flex flex-wrap items-baseline gap-2">
-                  <Pill tone={TONE[p.status]}>{statusLabel(p.status)}</Pill>
-                  <span className="num text-xs font-bold text-muted">
-                    {p.sku}
-                  </span>
-                  <span className="font-extrabold text-text">
-                    {p.productName}
-                  </span>
-                  <span className="text-xs text-muted">×{p.qty}</span>
-                </div>
-                <p className="mt-1 text-sm text-text/85">
-                  {p.customerName} · {p.customerPhone}
-                  {p.customerEmail && ` · ${p.customerEmail}`}
-                </p>
-                {p.note && (
-                  <p className="mt-1 text-xs italic text-muted">
-                    “{p.note}”
-                  </p>
-                )}
-              </div>
-              <p className="text-[11px] text-muted">
-                {formatDateTimeTH(p.createdAt)}
-              </p>
-            </div>
-
-            {p.status !== "fulfilled" && p.status !== "cancelled" && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {p.status === "pending" && (
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      setStatus(p.id, "notified");
-                      push({
-                        kind: "success",
-                        title: t.preOrders.statusNotified,
-                        message: `${p.customerName}`,
-                      });
-                    }}
-                  >
-                    {t.preOrders.markNotified}
-                  </Button>
-                )}
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => {
-                    setStatus(p.id, "fulfilled");
-                    push({
-                      kind: "success",
-                      title: t.preOrders.statusFulfilled,
-                      message: `${p.sku} → ${p.customerName}`,
-                    });
-                  }}
-                >
-                  {t.preOrders.markFulfilled}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="danger"
-                  onClick={() => {
-                    if (
-                      confirm(
-                        `Cancel pre-order for ${p.customerName}?`,
-                      )
-                    ) {
-                      setStatus(p.id, "cancelled");
-                    }
-                  }}
-                >
-                  {t.preOrders.markCancelled}
-                </Button>
-              </div>
-            )}
-          </li>
-        ))}
-        {visible.length === 0 && (
-          <li className="text-sm text-muted">
-            No pre-orders with status &ldquo;{filter}&rdquo;.
-          </li>
-        )}
-      </ul>
+      <section className="panel-quiet mt-4 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="tbl">
+            <thead>
+              <tr>
+                <th>{t.preOrders.fName}</th>
+                <th>Items</th>
+                <th className="text-right">{t.preOrders.fQty}</th>
+                <th>{t.preOrders.fNote}</th>
+                <th>Captured</th>
+                <th>Status</th>
+                <th className="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {visible.map((p) => (
+                <tr key={p.id}>
+                  <td>
+                    <button
+                      type="button"
+                      className="btn-link text-left"
+                      onClick={() => {
+                        if (p.customerPhone) {
+                          window.location.href = `tel:${p.customerPhone}`;
+                        }
+                      }}
+                    >
+                      {p.customerName}
+                    </button>
+                    <div className="mt-1 mono text-[11px] text-muted">
+                      {p.customerPhone}
+                      {p.customerEmail && ` · ${p.customerEmail}`}
+                    </div>
+                  </td>
+                  <td>
+                    <div className="font-semibold text-text">
+                      {p.productName}
+                    </div>
+                    <div className="mono num text-[11px] text-muted">
+                      {p.sku}
+                    </div>
+                  </td>
+                  <td className="text-right mono num">×{p.qty}</td>
+                  <td className="max-w-[28ch]">
+                    {p.note ? (
+                      <span className="text-xs italic text-text-soft">
+                        “{p.note}”
+                      </span>
+                    ) : (
+                      <span className="text-xs text-faint">—</span>
+                    )}
+                  </td>
+                  <td className="mono text-[11px] text-muted">
+                    {formatDateTimeTH(p.createdAt)}
+                  </td>
+                  <td>
+                    <span className={CHIP[p.status]}>
+                      {statusLabel(p.status)}
+                    </span>
+                  </td>
+                  <td>
+                    {p.status !== "fulfilled" && p.status !== "cancelled" ? (
+                      <div className="flex flex-wrap justify-end gap-2">
+                        {p.status === "pending" && (
+                          <button
+                            type="button"
+                            className="btn-ghost btn-sm"
+                            onClick={() => {
+                              setStatus(p.id, "notified");
+                              push({
+                                kind: "success",
+                                title: t.preOrders.statusNotified,
+                                message: `${p.customerName}`,
+                              });
+                            }}
+                          >
+                            {t.preOrders.markNotified}
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          className="btn-ghost btn-sm"
+                          onClick={() => {
+                            setStatus(p.id, "fulfilled");
+                            push({
+                              kind: "success",
+                              title: t.preOrders.statusFulfilled,
+                              message: `${p.sku} → ${p.customerName}`,
+                            });
+                          }}
+                        >
+                          {t.preOrders.markFulfilled}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-ghost btn-sm"
+                          onClick={() => {
+                            if (
+                              confirm(
+                                `Cancel pre-order for ${p.customerName}?`,
+                              )
+                            ) {
+                              setStatus(p.id, "cancelled");
+                            }
+                          }}
+                        >
+                          {t.preOrders.markCancelled}
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-faint">—</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {visible.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="text-center text-sm text-muted">
+                    No pre-orders with status &ldquo;{filter}&rdquo;.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </>
   );
 }

@@ -17,8 +17,8 @@ export function SuccessClient({ orderId }: { orderId: string }) {
 
   if (!ready) {
     return (
-      <main className="mx-auto max-w-xl px-5 py-12">
-        <div className="panel p-6 text-center text-sm text-muted">
+      <main className="mx-auto max-w-2xl px-5 py-12">
+        <div className="panel-quiet p-6 text-center text-sm text-muted">
           Loading…
         </div>
       </main>
@@ -27,31 +27,27 @@ export function SuccessClient({ orderId }: { orderId: string }) {
 
   if (!order) {
     return (
-      <main className="mx-auto max-w-xl px-5 py-12">
-        <div className="panel p-6 text-center">
-          <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[var(--color-ok-soft-bg)] text-2xl text-[var(--color-ok-soft-fg)]">
-            ✓
-          </span>
-          <h1 className="mt-4 font-display text-3xl text-accent-strong">
+      <main className="mx-auto max-w-2xl px-5 py-12">
+        <header className="no-print mb-6 text-center">
+          <p className="kicker kicker-gold justify-center">Receipt</p>
+          <h1 className="headline-upright mt-2 text-3xl text-accent-deep">
             Sale recorded
           </h1>
-          <p className="num mt-2 text-sm text-muted">{orderId}</p>
-          <p className="mt-3 text-text/85">
+          <p className="mono num mt-2 inline-block rounded-full border border-line bg-soft px-3 py-1 text-xs text-text-soft">
+            {orderId}
+          </p>
+        </header>
+        <div className="panel-lift p-6 text-center">
+          <p className="text-text/85">
             Demo order not found in this browser. (Could happen if you cleared
             demo data, or this is a real Supabase order ID — DD-67 will render
             real details.)
           </p>
-          <div className="mt-6 flex justify-center gap-3">
-            <Link
-              href="/app/pos"
-              className="btn-accent rounded-[var(--radius-md)] px-5 py-2.5 text-sm font-bold"
-            >
+          <div className="no-print mt-6 flex justify-center gap-3">
+            <Link href="/app/pos" className="btn-accent btn-md">
               Next sale
             </Link>
-            <Link
-              href="/app/dashboard"
-              className="rounded-[var(--radius-md)] border border-line bg-panel px-5 py-2.5 text-sm font-bold text-accent-strong"
-            >
+            <Link href="/app/dashboard" className="btn-ghost btn-md">
               Dashboard
             </Link>
           </div>
@@ -60,109 +56,161 @@ export function SuccessClient({ orderId }: { orderId: string }) {
     );
   }
 
+  const workspaceName = settings.brandDisplayName;
+  const showSubtotal = order.subtotalSatang !== order.totalSatang;
+
   return (
-    <main className="mx-auto max-w-xl px-5 py-10">
-      <div className="panel p-6">
-        <div className="text-center">
-          <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[var(--color-ok-soft-bg)] text-2xl text-[var(--color-ok-soft-fg)]">
-            ✓
-          </span>
-          <h1 className="mt-3 font-display text-3xl text-accent-strong">
+    <main className="mx-auto max-w-2xl px-5 py-10">
+      <header className="no-print mb-6 text-center">
+        <p className="kicker kicker-gold justify-center">Receipt</p>
+        <h1 className="headline-upright mt-2 text-3xl text-accent-deep">
+          {workspaceName}
+        </h1>
+        <p className="mono num mt-3 inline-block rounded-full border border-line bg-soft px-3 py-1 text-xs text-text-soft">
+          {order.orderNumber}
+        </p>
+      </header>
+
+      <article className="panel-lift p-6">
+        {/* Print-only header echo */}
+        <div className="hidden text-center print:block">
+          <p className="headline-upright text-xl text-text">{workspaceName}</p>
+          <p className="mono num mt-1 text-xs text-text-soft">
             {order.orderNumber}
-          </h1>
-          <p className="mt-1 text-xs text-muted">
-            {formatDateTimeTH(order.createdAt)} · {order.paymentMethod}
           </p>
         </div>
 
-        <ul className="mt-5 grid gap-2">
-          {order.items.map((it, i) => (
-            <li
-              key={i}
-              className="flex items-baseline justify-between gap-3 border-b border-line/60 pb-2 text-sm"
-            >
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold text-muted">{it.sku}</p>
-                <p className="font-extrabold text-text">{it.productName}</p>
-                <p className="text-xs text-muted">
-                  {it.qty} × {formatTHB(it.unitPriceSatang)}
-                  {it.fulfillmentType === "send_later" && " · send later"}
-                </p>
-                {it.note && (
-                  <p className="mt-0.5 text-[11px] italic text-[#6d4c28]">
-                    “{it.note}”
-                  </p>
-                )}
-              </div>
-              <p className="num shrink-0 text-sm font-extrabold text-accent-strong">
-                {formatTHB(it.lineTotalSatang)}
-              </p>
-            </li>
-          ))}
-        </ul>
+        {/* Order metadata */}
+        <dl className="mono num grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-text-soft">
+          <div className="flex justify-between gap-2">
+            <dt className="text-muted">Date</dt>
+            <dd>{formatDateTimeTH(order.createdAt)}</dd>
+          </div>
+          <div className="flex justify-between gap-2">
+            <dt className="text-muted">Order</dt>
+            <dd>{order.orderNumber}</dd>
+          </div>
+          <div className="flex justify-between gap-2">
+            <dt className="text-muted">Type</dt>
+            <dd className="uppercase">{order.orderType}</dd>
+          </div>
+          <div className="flex justify-between gap-2">
+            <dt className="text-muted">Payment</dt>
+            <dd className="uppercase">{order.paymentMethod}</dd>
+          </div>
+        </dl>
 
-        <div className="mt-4 grid gap-1 text-sm">
-          {order.subtotalSatang !== order.totalSatang && (
-            <Row label="Subtotal" value={formatTHB(order.subtotalSatang)} muted />
+        <div className="fleuron my-5"><span>※</span></div>
+
+        {/* Line items */}
+        <table className="tbl">
+          <thead>
+            <tr>
+              <th className="w-10">Qty</th>
+              <th>Item</th>
+              <th className="text-right">Price</th>
+              <th className="text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {order.items.map((it, i) => (
+              <tr key={i}>
+                <td className="mono num align-top">{it.qty}</td>
+                <td className="align-top">
+                  <p className="font-semibold text-text">{it.productName}</p>
+                  <p className="mono num text-[11px] text-muted">{it.sku}</p>
+                  {it.fulfillmentType === "send_later" && (
+                    <p className="text-[11px] text-muted">send later</p>
+                  )}
+                  {it.note && (
+                    <p className="mt-0.5 text-[11px] italic text-text-soft">
+                      &ldquo;{it.note}&rdquo;
+                    </p>
+                  )}
+                </td>
+                <td className="mono num text-right align-top text-text-soft">
+                  {formatTHB(it.unitPriceSatang)}
+                </td>
+                <td className="mono num text-right align-top font-semibold text-text">
+                  {formatTHB(it.lineTotalSatang)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="fleuron my-5"><span>※</span></div>
+
+        {/* Totals */}
+        <dl className="grid gap-1 text-sm">
+          {showSubtotal && (
+            <TotalsRow label="Subtotal" value={formatTHB(order.subtotalSatang)} />
           )}
           {order.shippingFeeSatang > 0 && (
-            <Row label="Shipping" value={formatTHB(order.shippingFeeSatang)} muted />
-          )}
-          {order.discountSatang > 0 && (
-            <Row
-              label="Discount"
-              value={`-${formatTHB(order.discountSatang)}`}
-              muted
+            <TotalsRow
+              label="Shipping"
+              value={formatTHB(order.shippingFeeSatang)}
             />
           )}
-          <div className="mt-1 flex items-baseline justify-between border-t border-line pt-2">
-            <span className="font-display text-lg text-accent-strong">
+          {order.discountSatang > 0 && (
+            <TotalsRow
+              label="Discount"
+              value={`-${formatTHB(order.discountSatang)}`}
+            />
+          )}
+          <div className="mt-2 flex items-baseline justify-between gap-2 border-t border-line pt-3">
+            <span className="headline-upright text-xl text-accent-deep">
               {t.pos.total}
             </span>
-            <span className="num text-2xl font-black text-accent-strong">
+            <span className="mono num headline-upright text-2xl text-accent-deep">
               {formatTHB(order.totalSatang)} THB
             </span>
           </div>
+
           {order.paymentMethod === "cash" &&
             order.cashTenderedSatang !== undefined &&
             order.cashTenderedSatang > 0 && (
-              <div className="mt-1 grid gap-0.5 rounded-xl bg-[var(--color-ok-soft-bg)] px-3 py-2 text-xs text-[var(--color-ok-soft-fg)]">
-                <Row
+              <div className="mt-3 grid gap-1 rounded-[var(--radius-md)] border border-line-soft bg-soft px-3 py-2 text-xs">
+                <TotalsRow
                   label={t.pos.amountTendered}
                   value={`${formatTHB(order.cashTenderedSatang)} THB`}
-                  muted
+                  small
                 />
-                <Row
+                <TotalsRow
                   label={t.pos.changeDue}
                   value={`${formatTHB(order.changeDueSatang ?? 0)} THB`}
-                  muted
+                  small
                 />
               </div>
             )}
+
           {order.payments && order.payments.length > 0 && (
-            <ul className="mt-1 grid gap-0.5 rounded-xl bg-soft px-3 py-2 text-xs">
+            <ul className="mt-2 grid gap-1 rounded-[var(--radius-md)] border border-line-soft bg-soft px-3 py-2 text-xs">
               {order.payments.map((p, i) => (
                 <li
                   key={i}
                   className="flex items-baseline justify-between gap-2"
                 >
-                  <span className="font-bold text-muted">{p.method}</span>
-                  <span className="num font-bold">
+                  <span className="font-semibold uppercase tracking-wider text-muted">
+                    {p.method}
+                  </span>
+                  <span className="mono num font-semibold text-text">
                     {formatTHB(p.amountSatang)} THB
                   </span>
                 </li>
               ))}
             </ul>
           )}
+
           {order.pointsEarned !== undefined && order.pointsEarned > 0 && (
-            <p className="mt-1 rounded-xl bg-[var(--color-warn-soft-bg)] px-3 py-2 text-center text-xs font-extrabold text-[var(--color-warn-soft-fg)]">
-              ★ {t.pos.loyaltyEarnsPoints(order.pointsEarned)}
+            <p className="mt-2 rounded-[var(--radius-md)] border border-line-soft bg-[var(--color-warn-soft-bg)] px-3 py-2 text-center text-xs font-semibold text-[var(--color-warn-soft-fg)]">
+              {t.pos.loyaltyEarnsPoints(order.pointsEarned)}
             </p>
           )}
-        </div>
+        </dl>
 
         {order.paymentMethod === "promptpay" && order.totalSatang > 0 && (
-          <div className="mt-5">
+          <div className="mt-6">
             <PromptPayDisplay
               proxy={{ kind: "phone", value: settings.promptpayPhone }}
               amountSatang={order.totalSatang}
@@ -173,49 +221,57 @@ export function SuccessClient({ orderId }: { orderId: string }) {
           </div>
         )}
 
-        <div className="no-print mt-6 flex flex-wrap justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="rounded-[var(--radius-md)] border border-line bg-panel px-5 py-2.5 text-sm font-bold text-accent-strong"
-          >
-            Print
-          </button>
-          <Link
-            href="/app/pos"
-            className="btn-accent rounded-[var(--radius-md)] px-5 py-2.5 text-sm font-bold"
-          >
-            Next sale
-          </Link>
-          <Link
-            href="/app/dashboard"
-            className="rounded-[var(--radius-md)] border border-line bg-panel px-5 py-2.5 text-sm font-bold text-accent-strong"
-          >
-            Dashboard
-          </Link>
-        </div>
+        {/* Thank-you copy — visible on receipt and print */}
+        <div className="fleuron my-5"><span>※</span></div>
+        <p className="text-center text-xs text-text-soft">
+          Thank you — see you at the next market.
+        </p>
+      </article>
 
-        <RegistrationLinkBlock orderId={order.id} />
+      {/* RegistrationLinkBlock keeps its own .no-print marker */}
+      <RegistrationLinkBlock orderId={order.id} />
+
+      {/* On-screen action row */}
+      <div className="no-print mt-6 flex flex-wrap justify-center gap-3">
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="btn-accent btn-lg"
+        >
+          Print
+        </button>
+        <Link href="/app/pos" className="btn-ghost btn-md">
+          New sale
+        </Link>
+        <Link href="/app/dashboard" className="btn-link text-sm">
+          Dashboard
+        </Link>
       </div>
     </main>
   );
 }
 
-function Row({
+function TotalsRow({
   label,
   value,
-  muted,
+  small,
 }: {
   label: string;
   value: string;
-  muted?: boolean;
+  small?: boolean;
 }) {
   return (
     <div className="flex items-baseline justify-between gap-2">
-      <span className={muted ? "font-bold text-muted" : "font-bold"}>
+      <span
+        className={
+          small
+            ? "font-semibold text-muted"
+            : "font-semibold text-text-soft"
+        }
+      >
         {label}
       </span>
-      <span className="num font-bold">{value}</span>
+      <span className="mono num font-semibold text-text">{value}</span>
     </div>
   );
 }

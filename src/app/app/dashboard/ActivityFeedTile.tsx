@@ -24,11 +24,9 @@ export function ActivityFeedTile() {
   const entries = deriveActivityFeed(orders, items, { entryLimit: 10 });
 
   return (
-    <div className="rounded-[var(--radius-lg)] border border-line bg-panel-strong px-5 py-4">
+    <div className="panel-quiet border-l-2 border-line-strong px-5 py-4">
       <div className="flex items-baseline justify-between">
-        <p className="text-xs font-bold uppercase tracking-wider text-muted">
-          {t.pos.activityFeedHeader}
-        </p>
+        <p className="kicker">{t.pos.activityFeedHeader}</p>
         <span className="grid h-2 w-2 place-items-center rounded-full bg-[var(--color-ok-soft-fg)]/80">
           <span className="h-2 w-2 animate-ping rounded-full bg-[var(--color-ok-soft-fg)]/60" />
         </span>
@@ -38,32 +36,41 @@ export function ActivityFeedTile() {
           No activity yet today. Make a sale at /app/pos.
         </p>
       ) : (
-        <ul className="mt-3 grid gap-2">
-          {entries.map((e, i) => (
-            <li
-              key={i}
-              className="flex flex-wrap items-baseline justify-between gap-2 rounded-xl border border-line bg-panel px-3 py-2 text-sm"
-            >
-              <div className="min-w-0 flex flex-wrap items-baseline gap-2">
-                <Pill tone={TONE[e.kind] ?? "neutral"}>{e.kind.replace("_", " ")}</Pill>
-                <span className="font-extrabold text-text">{e.title}</span>
-                {e.body && (
-                  <span className="text-xs text-muted">{e.body}</span>
-                )}
-              </div>
-              <div className="flex items-baseline gap-2">
-                {e.amountSatang !== undefined && (
-                  <span className="num text-sm font-extrabold text-accent-strong">
-                    {formatTHB(e.amountSatang)}
-                  </span>
-                )}
-                <span className="text-[11px] text-muted">
+        <table className="tbl mt-3">
+          <thead>
+            <tr>
+              <th>Kind</th>
+              <th>Detail</th>
+              <th className="text-right">Amount</th>
+              <th className="text-right">Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {entries.map((e, i) => (
+              <tr key={i}>
+                <td>
+                  <Pill tone={TONE[e.kind] ?? "neutral"}>
+                    {e.kind.replace("_", " ")}
+                  </Pill>
+                </td>
+                <td>
+                  <p className="font-semibold text-text">{e.title}</p>
+                  {e.body && (
+                    <p className="text-xs text-muted">{e.body}</p>
+                  )}
+                </td>
+                <td className="mono num text-right font-semibold text-accent-deep">
+                  {e.amountSatang !== undefined
+                    ? formatTHB(e.amountSatang)
+                    : ""}
+                </td>
+                <td className="mono num text-right text-[11px] text-muted">
                   {formatDateTimeTH(e.at)}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ul>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );
